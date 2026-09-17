@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent, type ReactNode } from "react";
 import {
   ArrowRight, Building2, Check, ChevronDown, CloudRain, Globe2, Headphones,
-  Landmark, Leaf, Mail, Menu, Network, Pause, Play, Radio, Satellite,
+  Landmark, Mail, Menu, Network, Pause, Play, Radio, Satellite,
   ShieldCheck, Sprout, Users, WalletCards, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,10 +35,21 @@ const featureRows = [
   { icon: WalletCards, title: "A successful season returns value to farmers", copy: "Eligible surplus is shared as a cash-back dividend or rolled into protection for the next farming season." },
 ] as const;
 
-function Brand() {
-  return <a href="#top" className="flex items-center gap-2" aria-label="GonaAI home">
-    <span className="relative grid size-9 place-items-center text-primary"><span className="absolute size-7 rotate-45 rounded-[35%] bg-sun"/><Leaf className="relative size-5"/></span>
-    <span className="text-xl font-extrabold">GonaAI</span><span className="text-[10px] font-bold text-muted-foreground">TAKAFUL</span>
+function Brand({ inverted = false }: { inverted?: boolean }) {
+  return <a href="#top" className="flex shrink-0 items-center gap-2.5" aria-label="GonaInsured home">
+    <svg viewBox="0 0 60 60" aria-hidden="true" className="size-10 shrink-0">
+      <defs>
+        <linearGradient id={inverted ? "gona-mark-footer" : "gona-mark-header"} x1="8" y1="4" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+          <stop stopColor="var(--color-leaf)" />
+          <stop offset="1" stopColor="var(--color-primary)" />
+        </linearGradient>
+      </defs>
+      <path d="M4 35C4 17.9 17.9 4 35 4h17v13.5a6 6 0 0 1-6 6H35c-7.5 0-13.5 6-13.5 13.5v4H4v-6Z" fill={`url(#${inverted ? "gona-mark-footer" : "gona-mark-header"})`} />
+      <path d="M4 34.5V56h22.5C42.8 56 56 42.8 56 26.5V23H42.5v5.5a14 14 0 0 1-14 14h-7v-8H4Z" fill={`url(#${inverted ? "gona-mark-footer" : "gona-mark-header"})`} />
+    </svg>
+    <span className="whitespace-nowrap text-[1.35rem] font-extrabold leading-none sm:text-[1.65rem]">
+      <span className={inverted ? "text-primary-foreground" : "text-foreground"}>Gona</span><span className={inverted ? "text-announcement" : "text-leaf"}>Insured</span>
+    </span>
   </a>;
 }
 
@@ -72,7 +83,7 @@ function Index() {
       <section id="partner" className="scroll-mt-28 bg-secondary py-20"><div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-[.8fr_1.2fr] lg:px-8"><div><p className="text-xs font-extrabold uppercase text-primary">Partner with GonaAI</p><h2 className="mt-3 text-4xl font-bold sm:text-5xl">Let’s protect the season together.</h2><p className="mt-5 text-sm leading-7 text-muted-foreground">Deploy a development grant, de-risk an outgrower network, or anchor an underwriting pool with infrastructure built for the field.</p></div>{sent?<div className="grid min-h-[420px] place-items-center rounded-2xl bg-primary p-10 text-center text-primary-foreground"><div><span className="mx-auto grid size-14 place-items-center rounded-full bg-sun text-primary"><Check/></span><h3 className="mt-5 text-3xl font-bold">Request received.</h3><p className="mt-3 text-sm text-primary-foreground/70">Thank you. Your collaboration scope is ready for our partnership team.</p><Button variant="secondary" className="mt-7 rounded-xl" onClick={()=>setSent(false)}>Send another request</Button></div></div>:<form onSubmit={submit} className="rounded-2xl bg-card p-6 shadow-soft sm:p-9"><div className="grid gap-x-5 sm:grid-cols-2"><Field label="Name"><input required name="name" className="h-12 w-full rounded-xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring" placeholder="Your full name"/></Field><Field label="Institutional email"><input required type="email" name="email" className="h-12 w-full rounded-xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring" placeholder="name@organisation.org"/></Field></div><Field label="I am a..."><select required defaultValue="" className="h-12 w-full rounded-xl border bg-background px-4"><option value="" disabled>Select partnership type</option><option>Agribusiness Grant Donor</option><option>Takaful Underwriter</option></select></Field><Field label="Message / scope of collaboration"><textarea required rows={4} className="w-full resize-none rounded-xl border bg-background p-4" placeholder="Tell us about your programme or target communities."/></Field><Button size="lg" className="mt-2 rounded-xl">Submit & Request Technical Brief <ArrowRight/></Button></form>}</div></section>
     </main>
 
-    <footer className="bg-primary py-14 text-primary-foreground"><div className="mx-auto grid max-w-7xl gap-10 px-5 sm:grid-cols-3 lg:px-8"><div><Brand/><p className="mt-5 max-w-xs text-xs leading-6 text-primary-foreground/65">Climate resilience, mutual protection, and shared prosperity for African agriculture.</p></div><div><p className="text-xs font-extrabold uppercase text-sun">Explore</p><div className="mt-4 space-y-3 text-sm"><a className="block" href="#how">How it works</a><a className="block" href="#impact">Our impact</a><a className="block" href="#faqs">FAQs</a></div></div><div><p className="text-xs font-extrabold uppercase text-sun">Contact</p><p className="mt-4 flex items-center gap-2 text-sm"><Mail className="size-4"/> partners@gona.ai</p><p className="mt-3 flex items-center gap-2 text-sm"><Globe2 className="size-4"/> Nigeria</p></div></div><div className="mx-auto mt-10 flex max-w-7xl justify-between border-t border-primary-foreground/15 px-5 pt-6 text-[11px] text-primary-foreground/55 lg:px-8"><span>© 2026 GonaAI. All rights reserved.</span><a href="#top">Back to top</a></div></footer>
+    <footer className="bg-primary py-14 text-primary-foreground"><div className="mx-auto grid max-w-7xl gap-10 px-5 sm:grid-cols-3 lg:px-8"><div><Brand inverted/><p className="mt-5 max-w-xs text-xs leading-6 text-primary-foreground/65">Climate resilience, mutual protection, and shared prosperity for African agriculture.</p></div><div><p className="text-xs font-extrabold uppercase text-sun">Explore</p><div className="mt-4 space-y-3 text-sm"><a className="block" href="#how">How it works</a><a className="block" href="#impact">Our impact</a><a className="block" href="#faqs">FAQs</a></div></div><div><p className="text-xs font-extrabold uppercase text-sun">Contact</p><p className="mt-4 flex items-center gap-2 text-sm"><Mail className="size-4"/> partners@gona.ai</p><p className="mt-3 flex items-center gap-2 text-sm"><Globe2 className="size-4"/> Nigeria</p></div></div><div className="mx-auto mt-10 flex max-w-7xl justify-between border-t border-primary-foreground/15 px-5 pt-6 text-[11px] text-primary-foreground/55 lg:px-8"><span>© 2026 GonaInsured. All rights reserved.</span><a href="#top">Back to top</a></div></footer>
   </div>;
 }
 
