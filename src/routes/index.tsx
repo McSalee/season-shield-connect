@@ -39,16 +39,16 @@ function Brand({ inverted = false }: { inverted?: boolean }) {
   return <a href="#top" className="flex shrink-0 items-center gap-2.5" aria-label="GonaInsured home">
     <svg viewBox="0 0 64 64" aria-hidden="true" className="size-10 shrink-0">
       <defs>
-        <linearGradient id={inverted ? "gona-mark-footer" : "gona-mark-header"} x1="50" y1="5" x2="14" y2="59" gradientUnits="userSpaceOnUse">
+        <linearGradient id={inverted ? "gona-mark-footer" : "gona-mark-header"} x1="48" y1="7" x2="15" y2="57" gradientUnits="userSpaceOnUse">
           <stop stopColor="var(--color-leaf)" />
           <stop offset="1" stopColor="var(--color-primary)" />
         </linearGradient>
       </defs>
-      <path d="M3 34C3 16.9 16.9 3 34 3h23v15c0 4.4-3.6 8-8 8H37c-7.2 0-13 5.8-13 13v3H3v-8Z" fill={`url(#${inverted ? "gona-mark-footer" : "gona-mark-header"})`} />
-      <path d="M3 34v27h28c16.6 0 30-13.4 30-30v-5H46v5c0 8.3-6.7 15-15 15h-7V34H3Z" fill={`url(#${inverted ? "gona-mark-footer" : "gona-mark-header"})`} />
+      <path d="M4 31C4 16.1 16.1 4 31 4h25v13.5a7.5 7.5 0 0 1-7.5 7.5H39c-7.7 0-14 6.3-14 14v3H4V31Z" fill={`url(#${inverted ? "gona-mark-footer" : "gona-mark-header"})`} />
+      <path d="M4 31v29h27c16 0 29-13 29-29v-6H45v6c0 7.7-6.3 14-14 14h-6V31H4Z" fill={`url(#${inverted ? "gona-mark-footer" : "gona-mark-header"})`} />
     </svg>
     <span className="whitespace-nowrap text-[1.35rem] font-extrabold leading-none sm:text-[1.65rem]">
-      <span className={inverted ? "text-primary-foreground" : "text-foreground"}>Gona</span><span className={inverted ? "text-announcement" : "text-leaf"}>Insured</span>
+      <span className={inverted ? "text-primary-foreground" : "text-foreground"}>Gona</span><span className="text-sun">Insured</span>
     </span>
   </a>;
 }
