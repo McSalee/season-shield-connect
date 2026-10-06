@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, FileText, Info, Search, TriangleAlert } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, FileText, Info, Search, TriangleAlert, Users, ShieldCheck, Satellite, CalendarDays, Sprout, MapPin, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,9 @@ export const Route = createFileRoute("/demo")({
     { title: "Partner dashboard demo | GonaInsured" },
     { name: "description", content: "See how GonaInsured monitors farms with satellite data: field health maps, double-trigger results, SMS advisories and payout reports." },
     { property: "og:title", content: "GonaInsured partner dashboard demo" },
+    { property: "og:description", content: "Explore a simulated cooperative portfolio with real satellite imagery, crop-health monitoring, advisories and payout reports." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
   ] }),
   component: DemoPage,
 });
@@ -44,7 +47,7 @@ function Logo() {
 }
 
 const BADGE: Record<Status, { cls: string; icon: ReactNode }> = {
-  normal: { cls: "bg-leaf/12 text-leaf", icon: <Check className="size-3" /> },
+  normal: { cls: "bg-leaf/10 text-leaf", icon: <Check className="size-3" /> },
   stress_detected: { cls: "bg-sun/20 text-earth", icon: <AlertTriangle className="size-3" /> },
   trigger_confirmed: { cls: "bg-destructive/12 text-destructive", icon: <TriangleAlert className="size-3" /> },
 };
@@ -52,7 +55,7 @@ const BADGE: Record<Status, { cls: string; icon: ReactNode }> = {
 function StatusBadge({ status }: { status: Status }) {
   const b = BADGE[status];
   return (
-    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold", b.cls)}>
+    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-semibold", b.cls)}>
       {b.icon}{STATUS_LABEL[status]}
     </span>
   );
@@ -60,20 +63,23 @@ function StatusBadge({ status }: { status: Status }) {
 
 function ResultChip({ result }: { result: string }) {
   const cls = /^Red/.test(result) ? "bg-destructive/12 text-destructive"
-    : /^Orange/.test(result) ? "bg-orange-500/15 text-orange-700"
+    : /^Orange/.test(result) ? "bg-sun/20 text-earth"
     : /^Yellow|Advisory/.test(result) ? "bg-sun/20 text-earth" : "bg-leaf/12 text-leaf";
   return <span className={cn("whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-bold", cls)}>{result}</span>;
 }
 
-function Tile({ label, value, note, accent = "bg-primary", small }: {
-  label: string; value: ReactNode; note?: string; accent?: string; small?: boolean;
+function Tile({ label, value, note, accent = "bg-primary", small, icon }: {
+  label: string; value: ReactNode; note?: string; accent?: string; small?: boolean; icon?: ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border bg-card p-4 pl-5 shadow-soft">
-      <span className={cn("absolute inset-y-0 left-0 w-1", accent)} />
-      <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className={cn("mt-1 font-extrabold tabular-nums", small ? "text-lg" : "text-2xl")}>{value}</p>
-      {note && <p className="text-[11px] text-muted-foreground">{note}</p>}
+    <div className="relative min-w-0 overflow-hidden rounded-lg border bg-card px-4 py-5 sm:px-5">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <span className="hidden text-muted-foreground sm:block">{icon}</span>
+      </div>
+      <p className={cn("mt-3 break-words font-bold tabular-nums leading-tight", small ? "text-base" : "text-3xl")}>{value}</p>
+      <p className="mt-2 min-h-4 text-[11px] text-muted-foreground">{note ?? "\u00a0"}</p>
+      <span className={cn("absolute inset-x-5 bottom-0 h-0.5", accent)} />
     </div>
   );
 }
@@ -99,22 +105,22 @@ function DemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
+    <div className="demo-theme min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-4 sm:px-8">
           <Link to="/" className="flex min-w-0 items-center gap-2.5" aria-label="GonaInsured home">
-            <span className="grid size-11 place-items-center rounded-xl bg-primary-foreground"><Logo /></span>
+            <span className="grid size-11 place-items-center"><Logo /></span>
             <span className="min-w-0">
-              <span className="block text-base font-extrabold leading-tight">Gona<span className="text-sun">Insured</span></span>
-              <span className="block truncate text-[11px] text-primary-foreground/75">Protecting farmers. Powering insurers.</span>
+              <span className="block text-xl font-extrabold leading-tight text-primary">Gona<span className="text-sun">Insured</span></span>
+              <span className="hidden text-[11px] text-muted-foreground sm:block">Protecting farmers. Powering insurers.</span>
             </span>
           </Link>
-          <span className="ml-1 hidden rounded-full bg-sun px-2.5 py-0.5 text-[11px] font-extrabold text-sun-foreground sm:inline">DEMO</span>
+          <span className="ml-3 hidden border-l pl-5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground md:inline">Partner workspace <span className="ml-2 rounded bg-sun/20 px-2 py-1 text-sun-foreground">DEMO</span></span>
           <nav className="ml-auto flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" asChild>
+            <Button variant="ghost" size="sm" className="hidden text-muted-foreground sm:inline-flex" asChild>
               <Link to="/"><ArrowLeft />Website</Link>
             </Button>
-            <Button variant="hero" size="sm" className="rounded-lg font-bold" asChild>
+            <Button variant="default" size="sm" className="h-9 rounded-md font-semibold shadow-none" asChild>
               <a href="/#partner">Partner with us</a>
             </Button>
           </nav>
@@ -122,7 +128,7 @@ function DemoPage() {
       </header>
 
       <div className="border-b border-sun/40 bg-sun/15">
-        <p className="mx-auto flex max-w-7xl items-start gap-2 px-4 py-2.5 text-xs text-foreground sm:px-6">
+        <p className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-3 text-xs leading-relaxed text-foreground sm:px-8">
           <Info className="mt-0.5 size-4 shrink-0 text-earth" />
           <span><strong>Demo with fictional farmers.</strong> Map imagery is real Sentinel-2 and CHIRPS satellite data of
             farmland near Saminaka, Kaduna. Farm weather, trigger results, messages and reports are simulated by the
@@ -130,11 +136,11 @@ function DemoPage() {
         </p>
       </div>
 
-      <main className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-7 px-4 py-7 sm:gap-8 sm:px-8 sm:py-9">
         {farmer ? <FarmerDetail f={farmer} onBack={() => open()} /> : <Portfolio status={status} onOpen={open} />}
       </main>
 
-      <footer className="mx-auto max-w-7xl px-4 pb-8 text-[11px] text-muted-foreground sm:px-6">
+      <footer className="mx-auto max-w-7xl border-t px-4 py-6 text-[11px] leading-relaxed text-muted-foreground sm:px-8">
         GonaInsured partner dashboard (demo) · Satellite data: Copernicus Sentinel-2, CHIRPS via Google Earth Engine ·
         Thresholds shown are pilot placeholders, not calibrated contract terms.
       </footer>
@@ -155,61 +161,68 @@ function Portfolio({ status, onOpen }: { status: Status | undefined; onOpen: (id
 
   return (
     <>
-      <div>
-        <h1 className="text-2xl font-extrabold sm:text-3xl">Farmer portfolio</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{demo.zone} · {cap(demo.crop)} · {all[0]?.cooperative} · as of {fmtDay(demo.asOf)}</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary"><ShieldCheck className="size-3.5" /> Season monitoring</p>
+          <h1 className="text-3xl font-bold sm:text-4xl">Farmer portfolio</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{all[0]?.cooperative}<span className="mt-1 block text-xs">{demo.zone} · {cap(demo.crop)}</span></p>
+        </div>
+        <p className="flex items-center gap-2 text-xs text-muted-foreground"><CalendarDays className="size-4" /> As of <span className="font-semibold text-foreground">{fmtDay(demo.asOf)}</span></p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <Tile label="Enrolled farmers" value={all.length} />
-        <Tile label="Normal" value={counts.normal} accent="bg-leaf" />
-        <Tile label="Stress detected" value={counts.stress_detected} accent="bg-sun" note="advisory sent" />
-        <Tile label="Trigger confirmed" value={counts.trigger_confirmed} accent="bg-destructive" note={`${reports} payout report${reports === 1 ? "" : "s"}`} />
-        <Tile label="Avg. season payout" value={pct(payout)} accent="bg-sky" note="of sum insured" />
+        <Tile label="Enrolled farmers" value={all.length} icon={<Users className="size-4" />} />
+        <Tile label="Normal" value={counts.normal} accent="bg-leaf" icon={<ShieldCheck className="size-4" />} />
+        <Tile label="Stress detected" value={counts.stress_detected} accent="bg-sun" note="advisory sent" icon={<AlertTriangle className="size-4" />} />
+        <Tile label="Trigger confirmed" value={counts.trigger_confirmed} accent="bg-destructive" note={`${reports} payout report${reports === 1 ? "" : "s"}`} icon={<FileText className="size-4" />} />
+        <Tile label="Avg. season payout" value={pct(payout)} accent="bg-sky" note="of sum insured" icon={<Wallet className="size-4" />} />
       </div>
 
       <FieldMap farmers={all} onSelect={onOpen} />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <nav aria-label="Filter by status" className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-4 border-t pt-7">
+        <h2 className="w-full text-lg font-bold">Enrolled farmers <span className="ml-2 text-sm font-normal text-muted-foreground">{shown.length} of {all.length}</span></h2>
+        <nav aria-label="Filter by status" className="flex max-w-full flex-wrap gap-1.5">
           {([undefined, ...STATUSES] as (Status | undefined)[]).map(s => (
-            <Link key={s ?? "all"} from="/demo" search={s ? { status: s } : {}} aria-current={status === s ? "true" : undefined}
-              className={cn("inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-colors",
-                status === s ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground")}>
+            <Button key={s ?? "all"} variant="ghost" size="sm" asChild className={cn("h-9 rounded-md px-3 text-xs font-semibold",
+                status === s ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : "text-muted-foreground")}>
+            <Link from="/demo" search={s ? { status: s } : {}} aria-current={status === s ? "true" : undefined}>
               {s ? STATUS_LABEL[s] : "All"}<span className="tabular-nums opacity-70">{s ? counts[s] : all.length}</span>
-            </Link>
+            </Link></Button>
           ))}
         </nav>
         <label className="relative w-full sm:ml-auto sm:w-72">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search name, phone or cooperative"
-            aria-label="Search farmers" className="w-full rounded-lg border bg-card py-2 pl-9 pr-3 text-sm" />
+            aria-label="Search farmers" className="h-10 w-full rounded-md border bg-card py-2 pl-9 pr-3 text-xs outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" />
         </label>
       </div>
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shown.map(f => (
-          <button key={f.id} type="button" onClick={() => onOpen(f.id)}
-            className="group flex w-full min-w-0 cursor-pointer flex-col gap-4 rounded-2xl border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+          <article key={f.id} className="group flex min-w-0 flex-col overflow-hidden rounded-lg border bg-card text-left transition-colors duration-200 hover:border-primary/40">
+            <div className="flex flex-1 flex-col gap-4 p-5">
             <div className="flex items-start gap-3">
               <Avatar name={f.name} />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-bold">{f.name}</p>
-                <p className="truncate text-xs text-muted-foreground">#{f.id} · {f.cooperative}</p>
+                <h3 className="text-base font-bold leading-snug">{f.name}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Farmer #{f.id}</p>
               </div>
-              <StatusBadge status={f.status} />
             </div>
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+            <div className="flex flex-wrap items-center gap-2"><StatusBadge status={f.status} /></div>
+            <p className="border-b pb-4 text-xs leading-relaxed text-muted-foreground">{f.cooperative}</p>
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-4 text-xs">
               {([["Location", coords(f)], ["Crop", `${cap(f.crop)} · ${f.stage}`], ["Planted", fmtDay(f.plantingDate)],
                 ["Season payout", pct(f.payout)]] as const).map(([k, v]) => (
-                <div key={k}><dt className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{k}</dt><dd className="mt-0.5 tabular-nums">{v}</dd></div>
+                <div key={k} className="min-w-0"><dt className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{k}</dt><dd className={cn("mt-1.5 break-words font-medium tabular-nums", k === "Season payout" && f.payout > 0 && "font-bold text-destructive")}>{v}</dd></div>
               ))}
             </dl>
-            <div className="flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
-              <span>Last evaluated {f.lastEvaluated ?? "never"}</span>
-              <span className="inline-flex items-center gap-1 font-bold text-primary">View <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" /></span>
             </div>
-          </button>
+            <div className="flex items-center justify-between gap-2 border-t bg-muted/35 px-5 py-3 text-[10px] text-muted-foreground">
+              <span>Last evaluated<span className="mt-0.5 block tabular-nums">{f.lastEvaluated ?? "never"}</span></span>
+              <Button variant="ghost" size="sm" onClick={() => onOpen(f.id)} aria-label={`View ${f.name}`} className="h-8 px-2 text-xs font-semibold text-primary">View <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" /></Button>
+            </div>
+          </article>
         ))}
         {!shown.length && <p className="col-span-full rounded-2xl border border-dashed bg-card py-10 text-center text-sm text-muted-foreground">No farmers match.</p>}
       </div>
@@ -226,9 +239,9 @@ function FarmerDetail({ f, onBack }: { f: Farmer; onBack: () => void }) {
   return (
     <>
       <div>
-        <button type="button" onClick={onBack} className="mb-3 inline-flex cursor-pointer items-center gap-1 text-xs font-bold text-muted-foreground hover:text-primary">
+        <Button variant="ghost" size="sm" onClick={onBack} className="mb-4 -ml-3 text-xs font-semibold text-muted-foreground">
           <ArrowLeft className="size-3.5" /> All farmers
-        </button>
+        </Button>
         <div className="flex flex-wrap items-center gap-4">
           <Avatar name={f.name} large />
           <div className="min-w-[12rem] flex-1">
@@ -249,7 +262,7 @@ function FarmerDetail({ f, onBack }: { f: Farmer; onBack: () => void }) {
       <FieldMap key={f.id} farmers={demo.farmers} selected={f} />
       <SeasonCharts s={f.series} />
 
-      <section className="rounded-2xl border bg-card p-5 shadow-soft sm:p-6">
+      <section className="min-w-0 border-t py-6">
         <h2 className="text-base font-bold">Growth stages</h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Double trigger: a payout needs the weather index <em>and</em> satellite crop health to confirm stress in the same stage.
@@ -305,9 +318,9 @@ function Records({ f }: { f: Farmer }) {
   const tab = "rounded-none border-b-2 border-transparent px-3 py-2.5 text-sm font-bold data-[state=active]:border-primary data-[state=active]:shadow-none";
   const count = (n: number) => <span className="ml-1.5 rounded-full bg-muted px-1.5 text-[10px] tabular-nums">{n}</span>;
   return (
-    <section className="rounded-2xl border bg-card shadow-soft">
+    <section className="min-w-0 border-t">
       <Tabs defaultValue="reports">
-        <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-none rounded-t-2xl border-b bg-transparent px-3 pt-2">
+        <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-none border-b bg-transparent px-0 pt-2 [&>button]:shrink-0">
           <TabsTrigger value="reports" className={tab}>Payout reports{count(f.reports.length)}</TabsTrigger>
           <TabsTrigger value="messages" className={tab}>SMS & voice{count(f.messages.length)}</TabsTrigger>
           <TabsTrigger value="history" className={tab}>Status history{count(f.history.length)}</TabsTrigger>
