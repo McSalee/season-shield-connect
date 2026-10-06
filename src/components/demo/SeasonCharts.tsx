@@ -22,7 +22,7 @@ function Chart({ s, title, hint, season, normal, seasonLabel, normalLabel, color
   const x0 = toT(s.xMin), x1 = toT(s.xMax), today = toT(s.today);
   const a = pts(season), b = pts(normal);
   return (
-    <section className="min-w-0 rounded-2xl border bg-card p-5 shadow-soft sm:p-6">
+    <section className="min-w-0 border-t py-6">
       <h2 className="text-base font-bold">{title}</h2>
       <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
@@ -51,7 +51,7 @@ function Chart({ s, title, hint, season, normal, seasonLabel, normalLabel, color
               label={{ value: "today", position: "insideBottomRight", fontSize: 10, fill: "var(--color-muted-foreground)" }} />}
             <Tooltip labelFormatter={t => fmtDay(new Date(Number(t)).toISOString().slice(0, 10))}
               formatter={(v: number, name: string) => [fmt(v), name]}
-              contentStyle={{ borderRadius: 10, border: "1px solid var(--color-border)", fontSize: 12 }} />
+              contentStyle={{ borderRadius: 6, border: "1px solid var(--color-border)", background: "var(--color-card)", color: "var(--color-foreground)", fontSize: 12 }} />
             <Line data={b} dataKey="v" name={normalLabel} stroke="var(--color-muted-foreground)" strokeDasharray="5 4"
               strokeWidth={1.75} dot={false} isAnimationActive={false} />
             <Line data={a} dataKey="v" name={seasonLabel} stroke={color} strokeWidth={2.25}
