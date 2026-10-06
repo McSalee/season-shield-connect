@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Layers, ZoomIn, ZoomOut } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Info, Layers, LocateFixed, PenLine, Search, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { demo, fmtDay, STATUS_LABEL, type Farmer, type LayerKey, type Status } from "@/data/demo";
+import { loadLeaflet, type Leaflet } from "@/lib/leaflet";
 
 const LAYERS: { key: LayerKey; label: string; hint: string }[] = [
   { key: "ndvi", label: "NDVI", hint: "Crop greenness" },
@@ -13,6 +14,9 @@ const DATES = Object.keys(demo.map.dates).sort();
 const STATUS_DOT: Record<Status, string> = {
   normal: "bg-leaf", stress_detected: "bg-sun", trigger_confirmed: "bg-destructive",
 };
+const OUTSIDE_MSG = "Live satellite layers are only available for enrolled farmers. Search is available in the real dashboard.";
+const [[S, W], [N, E]] = demo.map.bounds;
+const inDemoArea = (lat: number, lon: number) => lat >= S && lat <= N && lon >= W && lon <= E;
 
 // colour of the red -> amber -> green ramp at t in [0, 1] (same interpolation Earth Engine uses)
 function colorAt(t: number): string {
@@ -23,28 +27,188 @@ function colorAt(t: number): string {
   return `rgb(${a.map((c, k) => Math.round(c + ((b[k] ?? c) - c) * (x - i))).join(",")})`;
 }
 
-function position(lat: number, lon: number) {
-  const [[s, w], [n, e]] = demo.map.bounds;
-  return { left: `${((lon - w) / (e - w)) * 100}%`, top: `${((n - lat) / (n - s)) * 100}%` };
+// "10.41, 8.69", "10.41 8.69", "10.41N 8.69E", "10.41°N, 8.69°E"
+function parseCoords(text: string): [number, number] | null {
+  const m = text.trim().match(/^(-?\d+(?:\.\d+)?)\s*°?\s*([NS])?\s*[,;\s]\s*(-?\d+(?:\.\d+)?)\s*°?\s*([EW])?$/i);
+  if (!m) return null;
+  let lat = parseFloat(m[1] ?? ""), lon = parseFloat(m[3] ?? "");
+  if (m[2] && /s/i.test(m[2])) lat = -Math.abs(lat);
+  if (m[4] && /w/i.test(m[4])) lon = -Math.abs(lon);
+  return Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? [lat, lon] : null;
 }
+
+// Area of a small lat/lon polygon in hectares (local equirectangular projection; fine at field scale).
+function hectares(pts: [number, number][]): number {
+  if (pts.length < 3) return 0;
+  const lat0 = (pts.reduce((s, p) => s + p[0], 0) / pts.length) * Math.PI / 180;
+  const xy = pts.map(([la, lo]) => [lo * 111320 * Math.cos(lat0), la * 110540] as const);
+  let a = 0;
+  xy.forEach(([x1, y1], i) => { const [x2, y2] = xy[(i + 1) % xy.length] ?? [x1, y1]; a += x1 * y2 - x2 * y1; });
+  return Math.abs(a) / 2 / 10000;
+}
+
+type Msg = { text: string; kind: "info" | "warn" | "error" } | null;
 
 export function FieldMap({ farmers, selected, onSelect }: {
   farmers: Farmer[]; selected?: Farmer; onSelect?: (id: number) => void;
 }) {
   const [layer, setLayer] = useState<LayerKey>("ndvi");
   const [day, setDay] = useState(DATES[DATES.length - 1] ?? "");
-  const [zoom, setZoom] = useState(selected ? 2 : 1);
   const [opacity, setOpacity] = useState(0.75);
+  const [query, setQuery] = useState("");
+  const [msg, setMsg] = useState<Msg>(null);
+  const [drawing, setDrawing] = useState(false);
+  const [field, setField] = useState<[number, number][]>([]);
+  const [ready, setReady] = useState(false);
   const data = demo.map.dates[day]?.[layer];
   const info = demo.legend[layer];
-  const origin = selected ? position(selected.lat, selected.lon) : { left: "50%", top: "50%" };
+
+  const box = useRef<HTMLDivElement>(null);
+  const L = useRef<Leaflet>(null);
+  const map = useRef<Leaflet>(null);
+  const overlay = useRef<Leaflet>(null);
+  const pin = useRef<Leaflet>(null);
+  const shape = useRef<Leaflet>(null);
+  const drawingRef = useRef(false);
+  drawingRef.current = drawing;
+
+  // create the map once (Leaflet is browser-only, so it loads after the page renders)
+  useEffect(() => {
+    let cancelled = false;
+    loadLeaflet().then(lib => {
+      if (cancelled || !box.current) return;
+      L.current = lib;
+      const m = lib.map(box.current, { scrollWheelZoom: false, zoomControl: true });
+      map.current = m;
+      // drag, pinch and +/- always work; wheel zoom only while working with the map so the page still scrolls
+      m.on("click focus", () => m.scrollWheelZoom.enable());
+      m.on("mouseout blur", () => m.scrollWheelZoom.disable());
+      const satellite = lib.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19, maxNativeZoom: 18, attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics" }).addTo(m);
+      const streets = lib.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" });
+      lib.control.layers({ Satellite: satellite, Streets: streets }, null, { position: "topright" }).addTo(m);
+      lib.control.scale({ imperial: false }).addTo(m);
+      lib.rectangle(demo.map.bounds, { color: "#ffffff", weight: 1.5, dashArray: "6 6", fill: false, interactive: false }).addTo(m);
+
+      farmers.forEach(f => {
+        const isSel = selected?.id === f.id;
+        const icon = lib.divIcon({
+          className: "",
+          html: `<span class="demo-map-dot block rounded-full border-2 ${STATUS_DOT[f.status]} ${isSel ? "size-5" : "size-3.5"}"></span>`,
+          iconSize: isSel ? [20, 20] : [14, 14],
+        });
+        const mk = lib.marker([f.lat, f.lon], { icon, title: `${f.name} - ${STATUS_LABEL[f.status]}`, opacity: selected && !isSel ? 0.6 : 1 })
+          .bindTooltip(f.name, { direction: "bottom", offset: [0, 8], permanent: isSel || !selected, className: "demo-map-label rounded px-2 py-1 text-[10px] font-semibold" })
+          .addTo(m);
+        if (onSelect) mk.on("click", () => { if (!drawingRef.current) onSelect(f.id); });
+      });
+
+      if (selected) m.setView([selected.lat, selected.lon], 15);
+      else m.fitBounds(demo.map.bounds);
+
+      m.on("click", (ev: Leaflet) => {
+        if (drawingRef.current) setField(pts => [...pts, [ev.latlng.lat, ev.latlng.lng]]);
+      });
+      m.on("dblclick", (ev: Leaflet) => {
+        if (!drawingRef.current) return;
+        lib.DomEvent.stop(ev);
+        // the double-click's own two clicks each added a corner at the same spot; keep one
+        setField(pts => (pts.length > 3 ? pts.slice(0, -1) : pts));
+        setDrawing(false);
+      });
+      setReady(true);
+      new ResizeObserver(() => m.invalidateSize()).observe(box.current);
+    }).catch(() => setMsg({ text: "The map library could not load. Check your internet connection and reload.", kind: "error" }));
+    return () => { cancelled = true; map.current?.remove(); map.current = null; };
+    // the map is rebuilt per farmer via the parent's key; markers don't change while mounted
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // satellite layer overlay (pre-rendered images, pinned to the Saminaka demo area)
+  useEffect(() => {
+    if (!ready || !L.current || !map.current) return;
+    overlay.current?.remove();
+    overlay.current = data
+      ? L.current.imageOverlay(data.src, demo.map.bounds, { opacity, zIndex: 10, alt: `${info.title}, ${fmtDay(data.start)} to ${fmtDay(data.end)}` }).addTo(map.current)
+      : null;
+  }, [ready, data, info.title]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { overlay.current?.setOpacity(opacity); }, [opacity]);
+
+  // outlined field
+  useEffect(() => {
+    if (!ready || !L.current || !map.current) return;
+    shape.current?.remove();
+    shape.current = null;
+    if (!field.length) return;
+    const style = { color: "#ffffff", weight: 2.5, fillColor: "#ffffff", fillOpacity: 0.12 };
+    shape.current = (drawing || field.length < 3
+      ? L.current.polyline(field, { ...style, dashArray: "5 5" })
+      : L.current.polygon(field, style)).addTo(map.current);
+  }, [ready, field, drawing]);
+
+  useEffect(() => { map.current?.doubleClickZoom[drawing ? "disable" : "enable"](); }, [ready, drawing]);
+
+  function jumpTo(lat: number, lon: number, label: string) {
+    const lib = L.current, m = map.current;
+    if (!lib || !m) return;
+    pin.current?.remove();
+    const icon = lib.divIcon({
+      className: "",
+      html: '<span class="demo-map-dot block size-5 -rotate-45 rounded-[50%_50%_50%_0] border-2 bg-sky"></span>',
+      iconSize: [20, 20], iconAnchor: [10, 20],
+    });
+    const span = document.createElement("span");
+    span.textContent = label;
+    pin.current = lib.marker([lat, lon], { icon, title: label }).bindPopup(span).addTo(m);
+    m.setView([lat, lon], inDemoArea(lat, lon) ? 15 : 13);
+    setMsg(inDemoArea(lat, lon) ? { text: `Showing ${label}.`, kind: "info" } : { text: OUTSIDE_MSG, kind: "warn" });
+  }
+
+  async function onSearch(ev: FormEvent) {
+    ev.preventDefault();
+    const text = query.trim();
+    if (!text || !map.current) return;
+    const c = parseCoords(text);
+    if (c) return jumpTo(c[0], c[1], `${c[0].toFixed(5)}, ${c[1].toFixed(5)}`);
+    setMsg({ text: `Searching for “${text}”…`, kind: "info" });
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?${new URLSearchParams({ q: text, format: "jsonv2", limit: "1" })}`,
+        { headers: { "Accept-Language": "en" } });
+      if (!r.ok) throw new Error(`search service returned ${r.status}`);
+      const [hit] = (await r.json()) as { lat: string; lon: string; display_name: string }[];
+      if (!hit) return setMsg({ text: `No place found for “${text}”. Try adding the state, e.g. “Saminaka, Kaduna”, or enter coordinates.`, kind: "error" });
+      jumpTo(Number(hit.lat), Number(hit.lon), hit.display_name.split(",").slice(0, 3).join(","));
+    } catch (err) {
+      setMsg({ text: `Place search failed: ${(err as Error).message}`, kind: "error" });
+    }
+  }
+
+  function locate() {
+    if (!navigator.geolocation) return setMsg({ text: "This browser cannot share its location.", kind: "error" });
+    setMsg({ text: "Finding your location…", kind: "info" });
+    navigator.geolocation.getCurrentPosition(
+      p => jumpTo(p.coords.latitude, p.coords.longitude, "Your location"),
+      e => setMsg({ text: `Could not get your location: ${e.code === 1 ? "permission was denied." : e.message}`, kind: "error" }),
+      { enableHighAccuracy: true, timeout: 15000 });
+  }
+
+  function backToStart() {
+    pin.current?.remove(); pin.current = null; setMsg(null); setQuery("");
+    if (selected) map.current?.setView([selected.lat, selected.lon], 15);
+    else map.current?.fitBounds(demo.map.bounds);
+  }
+
+  const area = hectares(field);
+  const tool = "inline-flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted";
 
   return (
     <section className="min-w-0 border-y bg-card" aria-labelledby="map-title">
       <div className="flex flex-wrap items-start gap-4 py-5">
         <div className="min-w-0 flex-1">
           <h2 id="map-title" className="text-lg font-bold">{selected ? "Field health map" : "Portfolio map"}</h2>
-          <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground">{demo.map.note} Each layer covers the 30 days up to the chosen date.</p>
+          <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground">{demo.map.note} Layers cover the dashed demo area; each shows the 30 days up to the chosen date.</p>
         </div>
         <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
           <div role="group" aria-label="Map layer" className="flex w-full rounded-md bg-muted p-1 sm:w-auto">
@@ -66,50 +230,55 @@ export function FieldMap({ farmers, selected, onSelect }: {
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-2 pb-3">
+        <form onSubmit={onSearch} role="search" className="flex min-w-0 flex-[1_1_320px] gap-2">
+          <label className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input type="search" value={query} onChange={e => setQuery(e.target.value)} aria-label="Search a place or coordinates"
+              placeholder="Search a place, or enter lat, lon (e.g. 10.41, 8.69)"
+              className="w-full rounded-md border bg-background py-2 pl-9 pr-3 text-sm" />
+          </label>
+          <Button type="submit" size="sm" className="h-auto rounded-md px-4 text-xs font-semibold">Search</Button>
+        </form>
+        <button type="button" onClick={locate} className={tool} title="Show my location"><LocateFixed className="size-4" />Locate me</button>
+        {drawing ? (
+          <button type="button" onClick={() => setDrawing(false)} className={cn(tool, "border-primary bg-primary text-primary-foreground hover:bg-primary/90")}>
+            Finish outline
+          </button>
+        ) : (
+          <button type="button" onClick={() => { setField([]); setDrawing(true); }} className={tool} title="Click points on the map to outline a field">
+            <PenLine className="size-4" />Outline field
+          </button>
+        )}
+        {!!field.length && <button type="button" onClick={() => { setField([]); setDrawing(false); }} className={tool}><Trash2 className="size-4" />Clear</button>}
+      </div>
+
+      {(msg || drawing || field.length >= 3) && (
+        <div className="pb-3">
+          <p role="status" className={cn("flex items-start gap-2 rounded-md px-3 py-2 text-xs",
+            msg?.kind === "warn" ? "bg-sun/20 text-foreground" : msg?.kind === "error" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground")}>
+            <Info className="mt-0.5 size-3.5 shrink-0" />
+            <span className="flex-1">
+              {msg?.text}{msg && (drawing || field.length >= 3) ? " " : ""}
+              {drawing ? `Outlining: click the field corners on the map (${field.length} point${field.length === 1 ? "" : "s"}), double-click or press Finish when done.`
+                : field.length >= 3 ? `Outlined field: about ${area < 10 ? area.toFixed(2) : area.toFixed(1)} ha. (Demo only - not saved.)` : ""}
+            </span>
+            {msg && <button type="button" onClick={backToStart} className="cursor-pointer font-bold underline">
+              {selected ? "Back to farm" : "Back to portfolio"}</button>}
+            {msg && <button type="button" aria-label="Dismiss" onClick={() => setMsg(null)} className="cursor-pointer"><X className="size-3.5" /></button>}
+          </p>
+        </div>
+      )}
+
       <div className="grid gap-6 pb-5 lg:grid-cols-[minmax(0,1fr)_260px]">
         <div className="demo-map-canvas relative aspect-square w-full overflow-hidden rounded-md lg:aspect-auto lg:h-[520px]">
-          <div className="absolute left-1/2 top-1/2 aspect-square w-full max-w-[520px] -translate-x-1/2 -translate-y-1/2">
-          <div className="absolute inset-0 transition-transform duration-300 ease-out motion-reduce:transition-none"
-            style={{ transform: `scale(${zoom})`, transformOrigin: `${origin.left} ${origin.top}` }}>
-            <div className="absolute inset-0">
-              <img src={demo.map.base} alt="" className="absolute inset-0 size-full object-cover" />
-              {data && <img key={data.src} src={data.src} alt={`${info.title}, ${fmtDay(data.start)} to ${fmtDay(data.end)}`}
-                className="absolute inset-0 size-full object-cover transition-opacity" style={{ opacity }} />}
-              {farmers.map(f => {
-                const isSel = selected?.id === f.id;
-                return (
-                   <Button variant="ghost" key={f.id} type="button" onClick={() => onSelect?.(f.id)} disabled={!onSelect && !isSel}
-                    title={`${f.name} - ${STATUS_LABEL[f.status]}`} aria-label={`${f.name}, ${STATUS_LABEL[f.status]}`}
-                    className={cn("group absolute h-auto w-auto rounded-full p-0 hover:bg-transparent disabled:opacity-100", onSelect && "cursor-pointer",
-                      selected && !isSel && "opacity-60")}
-                    style={{ ...position(f.lat, f.lon), transform: `translate(-50%, -50%) scale(${1 / zoom})` }}>
-                    <span className={cn("demo-map-dot block rounded-full border-2",
-                      STATUS_DOT[f.status], isSel ? "size-5" : "size-3.5")} />
-                    {(isSel || !selected) && (
-                      <span className="demo-map-label pointer-events-none absolute left-1/2 top-full mt-1.5 -translate-x-1/2 whitespace-nowrap rounded px-2 py-1 text-[10px] font-semibold">
-                        {f.name}
-                      </span>
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-          </div>
-          <div className="absolute right-3 top-3 flex flex-col gap-1.5">
-            <Button variant="outline" size="icon" type="button" title="Zoom in" aria-label="Zoom in" disabled={zoom >= 4} onClick={() => setZoom(z => Math.min(4, z * 1.5))}
-              className="size-9 rounded-md bg-card"><ZoomIn className="size-4" /></Button>
-            <Button variant="outline" size="icon" type="button" title="Zoom out" aria-label="Zoom out" disabled={zoom <= 1} onClick={() => setZoom(z => Math.max(1, z / 1.5))}
-              className="size-9 rounded-md bg-card"><ZoomOut className="size-4" /></Button>
-          </div>
-          <label className="absolute bottom-9 left-3 flex items-center gap-2 rounded-md border bg-card/95 px-3 py-2 text-[11px] font-semibold sm:bottom-3">
+          <div ref={box} className={cn("absolute inset-0 z-0", drawing && "cursor-crosshair [&_.leaflet-container]:cursor-crosshair")}
+            role="region" aria-label="Interactive satellite map" />
+          <label className="absolute bottom-7 left-3 z-[500] flex items-center gap-2 rounded-md border bg-card/95 px-3 py-2 text-[11px] font-semibold">
             <Layers className="size-3.5" /> Overlay
             <input type="range" min={0} max={1} step={0.05} value={opacity} onChange={e => setOpacity(Number(e.target.value))}
               className="w-20 accent-[var(--color-primary)]" aria-label="Overlay opacity" />
           </label>
-          <span className="absolute bottom-1.5 right-2 rounded bg-card/90 px-1.5 py-0.5 text-[9px] text-muted-foreground sm:bottom-3 sm:right-3">
-            Contains modified Copernicus Sentinel data; CHIRPS
-          </span>
         </div>
 
       {data && (
@@ -144,6 +313,7 @@ export function FieldMap({ farmers, selected, onSelect }: {
               </span>
             ))}
           </p>
+          <p className="text-[11px] text-muted-foreground">Contains modified Copernicus Sentinel data; CHIRPS rainfall.</p>
         </div>
       )}
       </div>
