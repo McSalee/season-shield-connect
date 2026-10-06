@@ -1,0 +1,131 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 4684 >>
+stream
+BT
+/F2 9 Tf 1 0 0 1 40 802.0 Tm (GONAINSURED - TRIGGER REPORT                                            Ref GI-0002-2026-FLO) Tj
+/F1 9 Tf 1 0 0 1 40 790.5 Tm (Generated 2026-09-20 08:00 UTC                         PILOT - parameters not yet calibrated) Tj
+/F1 9 Tf 1 0 0 1 40 779.0 Tm (============================================================================================) Tj
+/F1 9 Tf 1 0 0 1 40 767.5 Tm () Tj
+/F2 9 Tf 1 0 0 1 40 756.0 Tm (1. SUMMARY) Tj
+/F1 9 Tf 1 0 0 1 40 744.5 Tm (  Farmer #2 Ibrahim Sani reached a Red Trigger for the flowering \(tasselling\) stage of the) Tj
+/F1 9 Tf 1 0 0 1 40 733.0 Tm (  2026 maize season. Both the weather index and the independent satellite check fired) Tj
+/F1 9 Tf 1 0 0 1 40 721.5 Tm (  \(double trigger\).) Tj
+/F1 9 Tf 1 0 0 1 40 710.0 Tm (  Payout: 29.3% of season sum insured \(weather index 0.73 x stage weight 40%\).) Tj
+/F1 9 Tf 1 0 0 1 40 698.5 Tm () Tj
+/F2 9 Tf 1 0 0 1 40 687.0 Tm (2. POLICYHOLDER) Tj
+/F1 9 Tf 1 0 0 1 40 675.5 Tm (  Name            Ibrahim Sani \(farmer #2\)) Tj
+/F1 9 Tf 1 0 0 1 40 664.0 Tm (  Phone           +2348031110002) Tj
+/F1 9 Tf 1 0 0 1 40 652.5 Tm (  Cooperative     Saminaka Maize Farmers Coop) Tj
+/F1 9 Tf 1 0 0 1 40 641.0 Tm (  Enrolled by     Agent SAM-03 \(demo\)) Tj
+/F1 9 Tf 1 0 0 1 40 629.5 Tm (  Farm location   10.39530, 8.67870 \(50 m radius\)) Tj
+/F1 9 Tf 1 0 0 1 40 618.0 Tm (  Zone            Guinea Savanna / Middle Belt) Tj
+/F1 9 Tf 1 0 0 1 40 606.5 Tm (  Crop            maize) Tj
+/F1 9 Tf 1 0 0 1 40 595.0 Tm (  Planting date   2026-06-04) Tj
+/F1 9 Tf 1 0 0 1 40 583.5 Tm (  Enrolled        2026-10-06) Tj
+/F1 9 Tf 1 0 0 1 40 572.0 Tm () Tj
+/F2 9 Tf 1 0 0 1 40 560.5 Tm (3. INSURED EVENT) Tj
+/F1 9 Tf 1 0 0 1 40 549.0 Tm (  Growth stage    flowering \(tasselling\), days 50-71 after planting) Tj
+/F1 9 Tf 1 0 0 1 40 537.5 Tm (  Dates           2026-07-24 to 2026-08-14 \(22 days\)) Tj
+/F1 9 Tf 1 0 0 1 40 526.0 Tm (  Severity band   Red Trigger \(index 0.70-1.00\)) Tj
+/F1 9 Tf 1 0 0 1 40 514.5 Tm (  Weather index   0.73 \(worst case of the sub-indices\)) Tj
+/F1 9 Tf 1 0 0 1 40 503.0 Tm (  Stage weight    40% of the season maximum) Tj
+/F1 9 Tf 1 0 0 1 40 491.5 Tm (  Payout          29.3% of season sum insured) Tj
+/F1 9 Tf 1 0 0 1 40 480.0 Tm (  Evaluated       2026-10-06 11:42:18 UTC) Tj
+/F1 9 Tf 1 0 0 1 40 468.5 Tm () Tj
+/F2 9 Tf 1 0 0 1 40 457.0 Tm (4. WEATHER INDEX \(trigger leg 1\)) Tj
+/F1 9 Tf 1 0 0 1 40 445.5 Tm (  Each sub-index rises linearly from 0 at the attachment point to 1 at the exit point.) Tj
+/F1 9 Tf 1 0 0 1 40 434.0 Tm () Tj
+/F1 9 Tf 1 0 0 1 40 422.5 Tm (  measure                    this season      attach        exit   sub-index) Tj
+/F1 9 Tf 1 0 0 1 40 411.0 Tm (  rainfall total                 39.7 mm       80 mm       25 mm        0.73) Tj
+/F1 9 Tf 1 0 0 1 40 399.5 Tm (  longest dry spell                 11 d         7 d        14 d        0.57) Tj
+/F1 9 Tf 1 0 0 1 40 388.0 Tm (  wettest 5 days                 39.7 mm      120 mm      200 mm        0.00) Tj
+/F1 9 Tf 1 0 0 1 40 376.5 Tm (  days over 35 C                     1 d         4 d        10 d        0.00) Tj
+/F1 9 Tf 1 0 0 1 40 365.0 Tm () Tj
+/F1 9 Tf 1 0 0 1 40 353.5 Tm (  Drought sub-index \(max of rainfall and dry spell\): 0.73) Tj
+/F1 9 Tf 1 0 0 1 40 342.0 Tm (  Excess-rain sub-index: 0.00    Heat sub-index: 0.00) Tj
+/F1 9 Tf 1 0 0 1 40 330.5 Tm (  Composite weather index \(worst case\): 0.73) Tj
+/F1 9 Tf 1 0 0 1 40 319.0 Tm (  For comparison, this farm's normal for the stage: rainfall 154 mm, longest dry spell 3 d) Tj
+/F1 9 Tf 1 0 0 1 40 307.5 Tm (  \(baseline 2019-2025 \(n=7\)\).) Tj
+/F1 9 Tf 1 0 0 1 40 296.0 Tm () Tj
+/F2 9 Tf 1 0 0 1 40 284.5 Tm (5. SATELLITE CHECK \(trigger leg 2\)) Tj
+/F1 9 Tf 1 0 0 1 40 273.0 Tm (  Vegetation must independently confirm crop stress, compared with this farm's own normal.) Tj
+/F1 9 Tf 1 0 0 1 40 261.5 Tm () Tj
+/F1 9 Tf 1 0 0 1 40 250.0 Tm (  index        this season   farm normal     anomaly   confirms at    result) Tj
+/F1 9 Tf 1 0 0 1 40 238.5 Tm (  NDVI                0.43          0.69       -0.26      <= -0.15     fired) Tj
+/F1 9 Tf 1 0 0 1 40 227.0 Tm (  NDMI                0.14          0.31       -0.17      <= -0.10     fired) Tj
+/F1 9 Tf 1 0 0 1 40 215.5 Tm () Tj
+/F1 9 Tf 1 0 0 1 40 204.0 Tm (  Rule: either NDVI or NDMI must fire, from at least 2 cloud-free scenes.) Tj
+/F1 9 Tf 1 0 0 1 40 192.5 Tm (  Cloud-free scenes used: 2) Tj
+/F1 9 Tf 1 0 0 1 40 181.0 Tm (    Scene dates: 2026-08-03, 2026-08-13) Tj
+/F1 9 Tf 1 0 0 1 40 169.5 Tm (  Satellite confirms stress: yes) Tj
+/F1 9 Tf 1 0 0 1 40 158.0 Tm () Tj
+/F1 7 Tf 1 0 0 1 40 25 Tm (GonaInsured trigger report GI-0002-2026-FLO    page 1 of 2) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 5 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> >>
+endobj
+7 0 obj
+<< /Length 2094 >>
+stream
+BT
+/F2 9 Tf 1 0 0 1 40 802.0 Tm (6. DATA SOURCES AND QUALITY) Tj
+/F1 9 Tf 1 0 0 1 40 790.5 Tm (  Rainfall        sample \(22 days\)) Tj
+/F1 9 Tf 1 0 0 1 40 779.0 Tm (  Rain coverage   100% of days \(payout needs 90%\)) Tj
+/F1 9 Tf 1 0 0 1 40 767.5 Tm (  Payout sources  chirps, sample rainfall) Tj
+/F1 9 Tf 1 0 0 1 40 756.0 Tm (  Temperature     sample \(22 days\)) Tj
+/F1 9 Tf 1 0 0 1 40 744.5 Tm (  Vegetation      sample \(2 scenes\)) Tj
+/F1 9 Tf 1 0 0 1 40 733.0 Tm (  Stage complete  yes) Tj
+/F1 9 Tf 1 0 0 1 40 721.5 Tm (  Provisional     no - final data) Tj
+/F1 9 Tf 1 0 0 1 40 710.0 Tm () Tj
+/F2 9 Tf 1 0 0 1 40 698.5 Tm (7. SEASON OVERVIEW) Tj
+/F1 9 Tf 1 0 0 1 40 687.0 Tm (  stage           dates                        index      NDVI  result                payout) Tj
+/F1 9 Tf 1 0 0 1 40 675.5 Tm (  establishment   2026-06-04 to 2026-06-23      0.00     +0.02  ok                      0.0%) Tj
+/F1 9 Tf 1 0 0 1 40 664.0 Tm (  vegetative      2026-06-24 to 2026-07-23      0.00     -0.07  ok                      0.0%) Tj
+/F1 9 Tf 1 0 0 1 40 652.5 Tm (  flowering       2026-07-24 to 2026-08-14      0.73     -0.26  Red Trigger            29.3%) Tj
+/F1 9 Tf 1 0 0 1 40 641.0 Tm (  grain_fill      2026-08-15 to 2026-09-16      0.00     -0.36  advisory                0.0%) Tj
+/F1 9 Tf 1 0 0 1 40 629.5 Tm (  maturity        2026-09-17 to 2026-10-01      0.00     -0.24  advisory                0.0%) Tj
+/F1 9 Tf 1 0 0 1 40 618.0 Tm (  Season total: 29.3% of sum insured \(capped at 100%\).) Tj
+/F1 9 Tf 1 0 0 1 40 606.5 Tm () Tj
+/F1 9 Tf 1 0 0 1 40 595.0 Tm (--------------------------------------------------------------------------------------------) Tj
+/F1 9 Tf 1 0 0 1 40 583.5 Tm (Pilot notice: all thresholds in config/pilot.toml are placeholders pending calibration) Tj
+/F1 9 Tf 1 0 0 1 40 572.0 Tm (against yield-weather data and NiMet station validation. This report records how the index) Tj
+/F1 9 Tf 1 0 0 1 40 560.5 Tm (was computed; it is not by itself a claim settlement.) Tj
+/F1 7 Tf 1 0 0 1 40 25 Tm (GonaInsured trigger report GI-0002-2026-FLO    page 2 of 2) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 7 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000222 00000 n 
+0000000322 00000 n 
+0000005058 00000 n 
+0000005194 00000 n 
+0000007340 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+7476
+%%EOF
