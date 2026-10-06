@@ -77,10 +77,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GonaAI | Climate Takaful for African Agriculture" },
+      { title: "GonaInsured | Climate Takaful for African Agriculture" },
       { name: "description", content: "Satellite-driven Takaful protection and local-language climate advisories for African agriculture." },
-      { name: "author", content: "GonaAI" },
-      { property: "og:title", content: "GonaAI Climate Takaful" },
+      { name: "author", content: "GonaInsured" },
+      { property: "og:title", content: "GonaInsured Climate Takaful" },
       { property: "og:description", content: "Protecting African farming seasons with satellite intelligence, mutual risk pooling and local-language advisories." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
