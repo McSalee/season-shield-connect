@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Layers, ZoomIn, ZoomOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { demo, fmtDay, STATUS_LABEL, type Farmer, type LayerKey, type Status } from "@/data/demo";
 
 const LAYERS: { key: LayerKey; label: string; hint: string }[] = [
@@ -39,20 +40,20 @@ export function FieldMap({ farmers, selected, onSelect }: {
   const origin = selected ? position(selected.lat, selected.lon) : { left: "50%", top: "50%" };
 
   return (
-    <section className="overflow-hidden rounded-2xl border bg-card shadow-soft" aria-labelledby="map-title">
-      <div className="flex flex-wrap items-start gap-4 p-5 sm:p-6">
+    <section className="min-w-0 border-y bg-card" aria-labelledby="map-title">
+      <div className="flex flex-wrap items-start gap-4 py-5">
         <div className="min-w-0 flex-1">
-          <h2 id="map-title" className="text-base font-bold">{selected ? "Field health map" : "Portfolio map"}</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">{demo.map.note} Each layer covers the 30 days up to the chosen date.</p>
+          <h2 id="map-title" className="text-lg font-bold">{selected ? "Field health map" : "Portfolio map"}</h2>
+          <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground">{demo.map.note} Each layer covers the 30 days up to the chosen date.</p>
         </div>
         <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
-          <div role="group" aria-label="Map layer" className="flex w-full rounded-full border bg-muted p-1 sm:w-auto">
+          <div role="group" aria-label="Map layer" className="flex w-full rounded-md bg-muted p-1 sm:w-auto">
             {LAYERS.map(l => (
-              <button key={l.key} type="button" title={l.hint} aria-pressed={layer === l.key} onClick={() => setLayer(l.key)}
-                className={cn("flex-1 cursor-pointer rounded-full px-4 py-1.5 text-xs font-bold transition-colors sm:flex-none",
-                  layer === l.key ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground")}>
+              <Button key={l.key} variant="ghost" size="sm" type="button" title={l.hint} aria-pressed={layer === l.key} onClick={() => setLayer(l.key)}
+                className={cn("h-8 flex-1 rounded px-4 text-xs font-semibold sm:flex-none",
+                  layer === l.key ? "bg-card text-primary shadow-sm hover:bg-card" : "text-muted-foreground hover:text-foreground")}>
                 {l.label}
-              </button>
+              </Button>
             ))}
           </div>
           <label className="flex w-full items-center gap-2 text-xs font-semibold text-muted-foreground sm:w-auto">
@@ -65,9 +66,10 @@ export function FieldMap({ farmers, selected, onSelect }: {
         </div>
       </div>
 
-      <div className="grid gap-5 px-5 pb-5 sm:px-6 sm:pb-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="relative aspect-square w-full overflow-hidden rounded-xl border bg-muted">
-          <div className="absolute inset-0 transition-transform duration-500 ease-out"
+      <div className="grid gap-6 pb-5 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="demo-map-canvas relative aspect-square w-full overflow-hidden rounded-md lg:aspect-auto lg:h-[520px]">
+          <div className="absolute left-1/2 top-1/2 aspect-square w-full max-w-[520px] -translate-x-1/2 -translate-y-1/2">
+          <div className="absolute inset-0 transition-transform duration-300 ease-out motion-reduce:transition-none"
             style={{ transform: `scale(${zoom})`, transformOrigin: `${origin.left} ${origin.top}` }}>
             <div className="absolute inset-0">
               <img src={demo.map.base} alt="" className="absolute inset-0 size-full object-cover" />
@@ -76,68 +78,69 @@ export function FieldMap({ farmers, selected, onSelect }: {
               {farmers.map(f => {
                 const isSel = selected?.id === f.id;
                 return (
-                  <button key={f.id} type="button" onClick={() => onSelect?.(f.id)} disabled={!onSelect}
+                   <Button variant="ghost" key={f.id} type="button" onClick={() => onSelect?.(f.id)} disabled={!onSelect && !isSel}
                     title={`${f.name} - ${STATUS_LABEL[f.status]}`} aria-label={`${f.name}, ${STATUS_LABEL[f.status]}`}
-                    className={cn("group absolute", onSelect && "cursor-pointer",
+                    className={cn("group absolute h-auto w-auto rounded-full p-0 hover:bg-transparent disabled:opacity-100", onSelect && "cursor-pointer",
                       selected && !isSel && "opacity-60")}
                     style={{ ...position(f.lat, f.lon), transform: `translate(-50%, -50%) scale(${1 / zoom})` }}>
-                    <span className={cn("block rounded-full border-2 border-white shadow-[0_0_0_2px_rgba(0,0,0,0.35)]",
+                    <span className={cn("demo-map-dot block rounded-full border-2",
                       STATUS_DOT[f.status], isSel ? "size-5" : "size-3.5")} />
                     {(isSel || !selected) && (
-                      <span className="pointer-events-none absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                      <span className="demo-map-label pointer-events-none absolute left-1/2 top-full mt-1.5 -translate-x-1/2 whitespace-nowrap rounded px-2 py-1 text-[10px] font-semibold">
                         {f.name}
                       </span>
                     )}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
           </div>
-          <div className="absolute right-3 top-3 flex flex-col gap-1.5">
-            <button type="button" aria-label="Zoom in" onClick={() => setZoom(z => Math.min(4, z * 1.5))}
-              className="grid size-8 cursor-pointer place-items-center rounded-lg bg-background/95 shadow hover:bg-background"><ZoomIn className="size-4" /></button>
-            <button type="button" aria-label="Zoom out" onClick={() => setZoom(z => Math.max(1, z / 1.5))}
-              className="grid size-8 cursor-pointer place-items-center rounded-lg bg-background/95 shadow hover:bg-background"><ZoomOut className="size-4" /></button>
           </div>
-          <label className="absolute bottom-3 left-3 flex items-center gap-2 rounded-lg bg-background/95 px-2.5 py-1.5 text-[11px] font-semibold shadow">
+          <div className="absolute right-3 top-3 flex flex-col gap-1.5">
+            <Button variant="outline" size="icon" type="button" title="Zoom in" aria-label="Zoom in" disabled={zoom >= 4} onClick={() => setZoom(z => Math.min(4, z * 1.5))}
+              className="size-9 rounded-md bg-card"><ZoomIn className="size-4" /></Button>
+            <Button variant="outline" size="icon" type="button" title="Zoom out" aria-label="Zoom out" disabled={zoom <= 1} onClick={() => setZoom(z => Math.max(1, z / 1.5))}
+              className="size-9 rounded-md bg-card"><ZoomOut className="size-4" /></Button>
+          </div>
+          <label className="absolute bottom-9 left-3 flex items-center gap-2 rounded-md border bg-card/95 px-3 py-2 text-[11px] font-semibold sm:bottom-3">
             <Layers className="size-3.5" /> Overlay
             <input type="range" min={0} max={1} step={0.05} value={opacity} onChange={e => setOpacity(Number(e.target.value))}
               className="w-20 accent-[var(--color-primary)]" aria-label="Overlay opacity" />
           </label>
-          <span className="absolute bottom-3 right-3 hidden rounded bg-background/80 sm:inline px-1.5 py-0.5 text-[10px] text-muted-foreground">
+          <span className="absolute bottom-1.5 right-2 rounded bg-card/90 px-1.5 py-0.5 text-[9px] text-muted-foreground sm:bottom-3 sm:right-3">
             Contains modified Copernicus Sentinel data; CHIRPS
           </span>
         </div>
 
       {data && (
-        <div className="grid content-start gap-3 text-xs">
-          <div className="flex flex-wrap justify-between gap-2">
+        <div className="grid content-start gap-4 text-xs lg:border-l lg:pl-6">
+          <div className="flex flex-col gap-2">
             <strong className="text-sm">{info.title}</strong>
-            <span className="text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               {fmtDay(data.start)} – {fmtDay(data.end)} · {data.images} {layer === "rainfall" ? "days" : "scenes"}
             </span>
           </div>
           <div className="h-2.5 rounded-full" style={{ background: `linear-gradient(to right, ${demo.palette.join(", ")})` }} />
-          <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 sm:grid-cols-5 lg:grid-cols-1">
+          <div className="grid gap-0 sm:grid-cols-2 sm:gap-x-5 lg:grid-cols-1">
             {info.classes.map((name, k) => {
               const n = info.classes.length, step = (data.vmax - data.vmin) / n;
               const lo = data.vmin + k * step, hi = lo + step;
               const f = (v: number) => (data.unit ? `${Math.round(v)} ${data.unit}` : v.toFixed(2));
               const range = k === 0 ? `< ${f(hi)}` : k === n - 1 ? `≥ ${f(lo)}` : `${f(lo)} – ${f(hi)}`;
               return (
-                <div key={name} className="grid grid-cols-[14px_1fr_auto] items-center gap-x-2 max-lg:grid-cols-1 max-lg:gap-0.5">
-                  <span className="h-1.5 rounded-full lg:size-3.5 lg:rounded" style={{ background: colorAt((k + 0.5) / n) }} />
-                  <span className="font-bold">{name}</span>
-                  <span className="tabular-nums text-muted-foreground">{range}</span>
+                <div key={name} className="grid grid-cols-[10px_1fr_auto] items-center gap-x-2 border-b py-3">
+                  <span className="size-2.5 rounded-sm" style={{ background: colorAt((k + 0.5) / n) }} />
+                  <span className="text-[11px] font-medium">{name}</span>
+                  <span className="text-[10px] tabular-nums text-muted-foreground">{range}</span>
                 </div>
               );
             })}
           </div>
-          <p className="text-muted-foreground">{info.what}</p>
-          <p className="flex flex-wrap gap-x-3 gap-y-1 border-t pt-3 text-muted-foreground">
+          <p className="text-[11px] leading-relaxed text-muted-foreground">{info.what}</p>
+          <p className="flex flex-wrap gap-x-3 gap-y-3 border-t pt-4 text-[11px] text-muted-foreground lg:flex-col">
             {(["normal", "stress_detected", "trigger_confirmed"] as Status[]).map(st => (
               <span key={st} className="inline-flex items-center gap-1.5">
-                <span className={cn("size-2.5 rounded-full border border-white shadow", STATUS_DOT[st])} />{STATUS_LABEL[st]}
+                <span className={cn("size-2 rounded-full", STATUS_DOT[st])} />{STATUS_LABEL[st]}
               </span>
             ))}
           </p>
