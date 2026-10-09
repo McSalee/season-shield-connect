@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { STATUS_LABEL, type FarmerStatus } from "@/lib/admin";
+import { STATUS_LABEL, type FarmerStatus } from "@/lib/farmers";
 
 const STATUS_STYLE: Record<FarmerStatus, string> = {
   normal: "bg-leaf/15 text-leaf",

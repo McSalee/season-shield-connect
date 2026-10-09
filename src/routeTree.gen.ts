@@ -25,8 +25,10 @@ import { Route as AuthAcceptRouteImport } from './routes/auth/accept'
 import { Route as AuthForgotRouteImport } from './routes/auth/forgot'
 import { Route as AuthResetRouteImport } from './routes/auth/reset'
 import { Route as CooperativeIndexRouteImport } from './routes/cooperative/index'
+import { Route as CooperativeAgentsRouteImport } from './routes/cooperative/agents'
 import { Route as InsurerIndexRouteImport } from './routes/insurer/index'
 import { Route as AdminFarmersIdRouteImport } from './routes/admin/farmers/$id'
+import { Route as CooperativeFarmersIdRouteImport } from './routes/cooperative/farmers/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -108,6 +110,11 @@ const CooperativeIndexRoute = CooperativeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CooperativeRoute,
 } as any)
+const CooperativeAgentsRoute = CooperativeAgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
+  getParentRoute: () => CooperativeRoute,
+} as any)
 const InsurerIndexRoute = InsurerIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -117,6 +124,11 @@ const AdminFarmersIdRoute = AdminFarmersIdRouteImport.update({
   id: '/farmers/$id',
   path: '/farmers/$id',
   getParentRoute: () => AdminRoute,
+} as any)
+const CooperativeFarmersIdRoute = CooperativeFarmersIdRouteImport.update({
+  id: '/farmers/$id',
+  path: '/farmers/$id',
+  getParentRoute: () => CooperativeRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -134,10 +146,12 @@ export interface FileRoutesByFullPath {
   '/auth/accept': typeof AuthAcceptRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
+  '/cooperative/agents': typeof CooperativeAgentsRoute
   '/admin/': typeof AdminIndexRoute
   '/cooperative/': typeof CooperativeIndexRoute
   '/insurer/': typeof InsurerIndexRoute
   '/admin/farmers/$id': typeof AdminFarmersIdRoute
+  '/cooperative/farmers/$id': typeof CooperativeFarmersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -151,10 +165,12 @@ export interface FileRoutesByTo {
   '/auth/accept': typeof AuthAcceptRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
+  '/cooperative/agents': typeof CooperativeAgentsRoute
   '/admin': typeof AdminIndexRoute
   '/cooperative': typeof CooperativeIndexRoute
   '/insurer': typeof InsurerIndexRoute
   '/admin/farmers/$id': typeof AdminFarmersIdRoute
+  '/cooperative/farmers/$id': typeof CooperativeFarmersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -172,10 +188,12 @@ export interface FileRoutesById {
   '/auth/accept': typeof AuthAcceptRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
+  '/cooperative/agents': typeof CooperativeAgentsRoute
   '/admin/': typeof AdminIndexRoute
   '/cooperative/': typeof CooperativeIndexRoute
   '/insurer/': typeof InsurerIndexRoute
   '/admin/farmers/$id': typeof AdminFarmersIdRoute
+  '/cooperative/farmers/$id': typeof CooperativeFarmersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -194,10 +212,12 @@ export interface FileRouteTypes {
     | '/auth/accept'
     | '/auth/forgot'
     | '/auth/reset'
+    | '/cooperative/agents'
     | '/admin/'
     | '/cooperative/'
     | '/insurer/'
     | '/admin/farmers/$id'
+    | '/cooperative/farmers/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -211,10 +231,12 @@ export interface FileRouteTypes {
     | '/auth/accept'
     | '/auth/forgot'
     | '/auth/reset'
+    | '/cooperative/agents'
     | '/admin'
     | '/cooperative'
     | '/insurer'
     | '/admin/farmers/$id'
+    | '/cooperative/farmers/$id'
   id:
     | '__root__'
     | '/'
@@ -231,10 +253,12 @@ export interface FileRouteTypes {
     | '/auth/accept'
     | '/auth/forgot'
     | '/auth/reset'
+    | '/cooperative/agents'
     | '/admin/'
     | '/cooperative/'
     | '/insurer/'
     | '/admin/farmers/$id'
+    | '/cooperative/farmers/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -365,6 +389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CooperativeIndexRouteImport
       parentRoute: typeof CooperativeRoute
     }
+    '/cooperative/agents': {
+      id: '/cooperative/agents'
+      path: '/agents'
+      fullPath: '/cooperative/agents'
+      preLoaderRoute: typeof CooperativeAgentsRouteImport
+      parentRoute: typeof CooperativeRoute
+    }
     '/insurer/': {
       id: '/insurer/'
       path: '/'
@@ -378,6 +409,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/farmers/$id'
       preLoaderRoute: typeof AdminFarmersIdRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/cooperative/farmers/$id': {
+      id: '/cooperative/farmers/$id'
+      path: '/farmers/$id'
+      fullPath: '/cooperative/farmers/$id'
+      preLoaderRoute: typeof CooperativeFarmersIdRouteImport
+      parentRoute: typeof CooperativeRoute
     }
   }
 }
@@ -401,11 +439,15 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CooperativeRouteChildren {
+  CooperativeAgentsRoute: typeof CooperativeAgentsRoute
   CooperativeIndexRoute: typeof CooperativeIndexRoute
+  CooperativeFarmersIdRoute: typeof CooperativeFarmersIdRoute
 }
 
 const CooperativeRouteChildren: CooperativeRouteChildren = {
+  CooperativeAgentsRoute: CooperativeAgentsRoute,
   CooperativeIndexRoute: CooperativeIndexRoute,
+  CooperativeFarmersIdRoute: CooperativeFarmersIdRoute,
 }
 
 const CooperativeRouteWithChildren = CooperativeRoute._addFileChildren(

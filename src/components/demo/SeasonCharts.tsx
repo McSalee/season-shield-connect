@@ -21,6 +21,7 @@ function Chart({ s, title, hint, season, normal, seasonLabel, normalLabel, color
 }) {
   const x0 = toT(s.xMin), x1 = toT(s.xMax), today = toT(s.today);
   const a = pts(season), b = pts(normal);
+  const withResults = s.stages.some(st => st.result !== undefined);
   return (
     <section className="min-w-0 border-t py-6">
       <h2 className="text-base font-bold">{title}</h2>
@@ -28,13 +29,13 @@ function Chart({ s, title, hint, season, normal, seasonLabel, normalLabel, color
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-4 rounded" style={{ background: color }} />{seasonLabel}</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-4 rounded border-t-2 border-dashed border-muted-foreground" />{normalLabel}</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-4 rounded-sm bg-destructive/15" />Confirmed trigger</span>
+        {withResults && <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-4 rounded-sm bg-destructive/15" />Confirmed trigger</span>}
       </div>
       <div className="mt-2 h-64 w-full sm:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart margin={{ top: 22, right: 12, bottom: 0, left: -8 }}>
             {s.stages.map((st, i) => {
-              const trig = /Trigger/.test(st.result);
+              const trig = /Trigger/.test(st.result ?? "");
               return (
                 <ReferenceArea key={st.name} x1={toT(st.start)} x2={toT(st.end) + DAY} ifOverflow="hidden"
                   fill={trig ? "var(--color-destructive)" : "var(--color-foreground)"} fillOpacity={trig ? 0.12 : i % 2 ? 0.035 : 0}

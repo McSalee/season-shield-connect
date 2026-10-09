@@ -20,7 +20,10 @@ const NAV_FOR: Record<Role, NavItem[]> = {
     { to: "/insurer", label: "Insurer portal (view)", match: ["/insurer"] },
   ],
   insurer: [],
-  cooperative: [],
+  cooperative: [
+    { to: "/cooperative", label: "Farmers", match: ["/cooperative/farmers"] },
+    { to: "/cooperative/agents", label: "Agents", match: ["/cooperative/agents"] },
+  ],
 };
 const PORTAL_TITLE: Record<Role, string> = {
   admin: "Admin",

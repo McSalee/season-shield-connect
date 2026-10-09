@@ -6,7 +6,8 @@ export type Status = "normal" | "stress_detected" | "trigger_confirmed";
 export type LayerKey = "ndvi" | "ndmi" | "rainfall";
 export type Point = [string, number];
 
-export interface StageBand { name: string; start: string; end: string; result: string }
+// result is absent in the portals' shared charts (no advisory / trigger shading).
+export interface StageBand { name: string; start: string; end: string; result?: string }
 export interface Series {
   xMin: string; xMax: string; today: string; stages: StageBand[];
   ndvi: Point[]; ndviNormal: Point[]; rain: Point[]; rainNormal: Point[]; rainProvisionalFrom: string | null;
