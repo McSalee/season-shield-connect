@@ -10,11 +10,37 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CooperativeRouteImport } from './routes/cooperative'
 import { Route as DemoRouteImport } from './routes/demo'
+import { Route as InsurerRouteImport } from './routes/insurer'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as NoAccessRouteImport } from './routes/no-access'
+import { Route as PortalRouteImport } from './routes/portal'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminCooperativesRouteImport } from './routes/admin/cooperatives'
+import { Route as AdminOrganizationsRouteImport } from './routes/admin/organizations'
+import { Route as AdminRunsRouteImport } from './routes/admin/runs'
+import { Route as AuthAcceptRouteImport } from './routes/auth/accept'
+import { Route as AuthForgotRouteImport } from './routes/auth/forgot'
+import { Route as AuthResetRouteImport } from './routes/auth/reset'
+import { Route as CooperativeIndexRouteImport } from './routes/cooperative/index'
+import { Route as InsurerIndexRouteImport } from './routes/insurer/index'
+import { Route as AdminFarmersIdRouteImport } from './routes/admin/farmers/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CooperativeRoute = CooperativeRouteImport.update({
+  id: '/cooperative',
+  path: '/cooperative',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -22,31 +48,207 @@ const DemoRoute = DemoRouteImport.update({
   path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InsurerRoute = InsurerRouteImport.update({
+  id: '/insurer',
+  path: '/insurer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoAccessRoute = NoAccessRouteImport.update({
+  id: '/no-access',
+  path: '/no-access',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCooperativesRoute = AdminCooperativesRouteImport.update({
+  id: '/cooperatives',
+  path: '/cooperatives',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOrganizationsRoute = AdminOrganizationsRouteImport.update({
+  id: '/organizations',
+  path: '/organizations',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRunsRoute = AdminRunsRouteImport.update({
+  id: '/runs',
+  path: '/runs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AuthAcceptRoute = AuthAcceptRouteImport.update({
+  id: '/auth/accept',
+  path: '/auth/accept',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthForgotRoute = AuthForgotRouteImport.update({
+  id: '/auth/forgot',
+  path: '/auth/forgot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetRoute = AuthResetRouteImport.update({
+  id: '/auth/reset',
+  path: '/auth/reset',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CooperativeIndexRoute = CooperativeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CooperativeRoute,
+} as any)
+const InsurerIndexRoute = InsurerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InsurerRoute,
+} as any)
+const AdminFarmersIdRoute = AdminFarmersIdRouteImport.update({
+  id: '/farmers/$id',
+  path: '/farmers/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/cooperative': typeof CooperativeRouteWithChildren
   '/demo': typeof DemoRoute
+  '/insurer': typeof InsurerRouteWithChildren
+  '/login': typeof LoginRoute
+  '/no-access': typeof NoAccessRoute
+  '/portal': typeof PortalRoute
+  '/admin/cooperatives': typeof AdminCooperativesRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
+  '/admin/runs': typeof AdminRunsRoute
+  '/auth/accept': typeof AuthAcceptRoute
+  '/auth/forgot': typeof AuthForgotRoute
+  '/auth/reset': typeof AuthResetRoute
+  '/admin/': typeof AdminIndexRoute
+  '/cooperative/': typeof CooperativeIndexRoute
+  '/insurer/': typeof InsurerIndexRoute
+  '/admin/farmers/$id': typeof AdminFarmersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
+  '/login': typeof LoginRoute
+  '/no-access': typeof NoAccessRoute
+  '/portal': typeof PortalRoute
+  '/admin/cooperatives': typeof AdminCooperativesRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
+  '/admin/runs': typeof AdminRunsRoute
+  '/auth/accept': typeof AuthAcceptRoute
+  '/auth/forgot': typeof AuthForgotRoute
+  '/auth/reset': typeof AuthResetRoute
+  '/admin': typeof AdminIndexRoute
+  '/cooperative': typeof CooperativeIndexRoute
+  '/insurer': typeof InsurerIndexRoute
+  '/admin/farmers/$id': typeof AdminFarmersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/cooperative': typeof CooperativeRouteWithChildren
   '/demo': typeof DemoRoute
+  '/insurer': typeof InsurerRouteWithChildren
+  '/login': typeof LoginRoute
+  '/no-access': typeof NoAccessRoute
+  '/portal': typeof PortalRoute
+  '/admin/cooperatives': typeof AdminCooperativesRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
+  '/admin/runs': typeof AdminRunsRoute
+  '/auth/accept': typeof AuthAcceptRoute
+  '/auth/forgot': typeof AuthForgotRoute
+  '/auth/reset': typeof AuthResetRoute
+  '/admin/': typeof AdminIndexRoute
+  '/cooperative/': typeof CooperativeIndexRoute
+  '/insurer/': typeof InsurerIndexRoute
+  '/admin/farmers/$id': typeof AdminFarmersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/demo'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/cooperative'
+    | '/demo'
+    | '/insurer'
+    | '/login'
+    | '/no-access'
+    | '/portal'
+    | '/admin/cooperatives'
+    | '/admin/organizations'
+    | '/admin/runs'
+    | '/auth/accept'
+    | '/auth/forgot'
+    | '/auth/reset'
+    | '/admin/'
+    | '/cooperative/'
+    | '/insurer/'
+    | '/admin/farmers/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/demo'
-  id: '__root__' | '/' | '/demo'
+  to:
+    | '/'
+    | '/demo'
+    | '/login'
+    | '/no-access'
+    | '/portal'
+    | '/admin/cooperatives'
+    | '/admin/organizations'
+    | '/admin/runs'
+    | '/auth/accept'
+    | '/auth/forgot'
+    | '/auth/reset'
+    | '/admin'
+    | '/cooperative'
+    | '/insurer'
+    | '/admin/farmers/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/cooperative'
+    | '/demo'
+    | '/insurer'
+    | '/login'
+    | '/no-access'
+    | '/portal'
+    | '/admin/cooperatives'
+    | '/admin/organizations'
+    | '/admin/runs'
+    | '/auth/accept'
+    | '/auth/forgot'
+    | '/auth/reset'
+    | '/admin/'
+    | '/cooperative/'
+    | '/insurer/'
+    | '/admin/farmers/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  CooperativeRoute: typeof CooperativeRouteWithChildren
   DemoRoute: typeof DemoRoute
+  InsurerRoute: typeof InsurerRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  NoAccessRoute: typeof NoAccessRoute
+  PortalRoute: typeof PortalRoute
+  AuthAcceptRoute: typeof AuthAcceptRoute
+  AuthForgotRoute: typeof AuthForgotRoute
+  AuthResetRoute: typeof AuthResetRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +260,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cooperative': {
+      id: '/cooperative'
+      path: '/cooperative'
+      fullPath: '/cooperative'
+      preLoaderRoute: typeof CooperativeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo': {
       id: '/demo'
       path: '/demo'
@@ -65,12 +281,160 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/insurer': {
+      id: '/insurer'
+      path: '/insurer'
+      fullPath: '/insurer'
+      preLoaderRoute: typeof InsurerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/no-access': {
+      id: '/no-access'
+      path: '/no-access'
+      fullPath: '/no-access'
+      preLoaderRoute: typeof NoAccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cooperatives': {
+      id: '/admin/cooperatives'
+      path: '/cooperatives'
+      fullPath: '/admin/cooperatives'
+      preLoaderRoute: typeof AdminCooperativesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/organizations': {
+      id: '/admin/organizations'
+      path: '/organizations'
+      fullPath: '/admin/organizations'
+      preLoaderRoute: typeof AdminOrganizationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/runs': {
+      id: '/admin/runs'
+      path: '/runs'
+      fullPath: '/admin/runs'
+      preLoaderRoute: typeof AdminRunsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/auth/accept': {
+      id: '/auth/accept'
+      path: '/auth/accept'
+      fullPath: '/auth/accept'
+      preLoaderRoute: typeof AuthAcceptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot': {
+      id: '/auth/forgot'
+      path: '/auth/forgot'
+      fullPath: '/auth/forgot'
+      preLoaderRoute: typeof AuthForgotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset': {
+      id: '/auth/reset'
+      path: '/auth/reset'
+      fullPath: '/auth/reset'
+      preLoaderRoute: typeof AuthResetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cooperative/': {
+      id: '/cooperative/'
+      path: '/'
+      fullPath: '/cooperative/'
+      preLoaderRoute: typeof CooperativeIndexRouteImport
+      parentRoute: typeof CooperativeRoute
+    }
+    '/insurer/': {
+      id: '/insurer/'
+      path: '/'
+      fullPath: '/insurer/'
+      preLoaderRoute: typeof InsurerIndexRouteImport
+      parentRoute: typeof InsurerRoute
+    }
+    '/admin/farmers/$id': {
+      id: '/admin/farmers/$id'
+      path: '/farmers/$id'
+      fullPath: '/admin/farmers/$id'
+      preLoaderRoute: typeof AdminFarmersIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminCooperativesRoute: typeof AdminCooperativesRoute
+  AdminOrganizationsRoute: typeof AdminOrganizationsRoute
+  AdminRunsRoute: typeof AdminRunsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminFarmersIdRoute: typeof AdminFarmersIdRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCooperativesRoute: AdminCooperativesRoute,
+  AdminOrganizationsRoute: AdminOrganizationsRoute,
+  AdminRunsRoute: AdminRunsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminFarmersIdRoute: AdminFarmersIdRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface CooperativeRouteChildren {
+  CooperativeIndexRoute: typeof CooperativeIndexRoute
+}
+
+const CooperativeRouteChildren: CooperativeRouteChildren = {
+  CooperativeIndexRoute: CooperativeIndexRoute,
+}
+
+const CooperativeRouteWithChildren = CooperativeRoute._addFileChildren(
+  CooperativeRouteChildren,
+)
+
+interface InsurerRouteChildren {
+  InsurerIndexRoute: typeof InsurerIndexRoute
+}
+
+const InsurerRouteChildren: InsurerRouteChildren = {
+  InsurerIndexRoute: InsurerIndexRoute,
+}
+
+const InsurerRouteWithChildren =
+  InsurerRoute._addFileChildren(InsurerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  CooperativeRoute: CooperativeRouteWithChildren,
   DemoRoute: DemoRoute,
+  InsurerRoute: InsurerRouteWithChildren,
+  LoginRoute: LoginRoute,
+  NoAccessRoute: NoAccessRoute,
+  PortalRoute: PortalRoute,
+  AuthAcceptRoute: AuthAcceptRoute,
+  AuthForgotRoute: AuthForgotRoute,
+  AuthResetRoute: AuthResetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
