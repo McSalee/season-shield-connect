@@ -5,3 +5,4 @@
 - [x] Apply the custom-built GonaInsured logo consistently to every brand placement.
 - [x] Match only the logo symbol exactly to the supplied reference; keep the GonaInsured wordmark unchanged.
 - [x] Make “Insured” yellow and refine only the standalone green icon from the supplied reference.
+- [x] Widen the opening section's copy block and the navigation so both sit closer to the right edge; keep the headline wrap balanced.
