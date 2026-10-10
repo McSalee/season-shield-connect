@@ -27,8 +27,11 @@ import { Route as AuthResetRouteImport } from './routes/auth/reset'
 import { Route as CooperativeIndexRouteImport } from './routes/cooperative/index'
 import { Route as CooperativeAgentsRouteImport } from './routes/cooperative/agents'
 import { Route as InsurerIndexRouteImport } from './routes/insurer/index'
+import { Route as InsurerClaimsRouteImport } from './routes/insurer/claims'
 import { Route as AdminFarmersIdRouteImport } from './routes/admin/farmers/$id'
 import { Route as CooperativeFarmersIdRouteImport } from './routes/cooperative/farmers/$id'
+import { Route as InsurerFarmersIndexRouteImport } from './routes/insurer/farmers/index'
+import { Route as InsurerFarmersIdRouteImport } from './routes/insurer/farmers/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -120,6 +123,11 @@ const InsurerIndexRoute = InsurerIndexRouteImport.update({
   path: '/',
   getParentRoute: () => InsurerRoute,
 } as any)
+const InsurerClaimsRoute = InsurerClaimsRouteImport.update({
+  id: '/claims',
+  path: '/claims',
+  getParentRoute: () => InsurerRoute,
+} as any)
 const AdminFarmersIdRoute = AdminFarmersIdRouteImport.update({
   id: '/farmers/$id',
   path: '/farmers/$id',
@@ -129,6 +137,16 @@ const CooperativeFarmersIdRoute = CooperativeFarmersIdRouteImport.update({
   id: '/farmers/$id',
   path: '/farmers/$id',
   getParentRoute: () => CooperativeRoute,
+} as any)
+const InsurerFarmersIndexRoute = InsurerFarmersIndexRouteImport.update({
+  id: '/farmers/',
+  path: '/farmers/',
+  getParentRoute: () => InsurerRoute,
+} as any)
+const InsurerFarmersIdRoute = InsurerFarmersIdRouteImport.update({
+  id: '/farmers/$id',
+  path: '/farmers/$id',
+  getParentRoute: () => InsurerRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -147,11 +165,14 @@ export interface FileRoutesByFullPath {
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/cooperative/agents': typeof CooperativeAgentsRoute
+  '/insurer/claims': typeof InsurerClaimsRoute
   '/admin/': typeof AdminIndexRoute
   '/cooperative/': typeof CooperativeIndexRoute
   '/insurer/': typeof InsurerIndexRoute
   '/admin/farmers/$id': typeof AdminFarmersIdRoute
   '/cooperative/farmers/$id': typeof CooperativeFarmersIdRoute
+  '/insurer/farmers/$id': typeof InsurerFarmersIdRoute
+  '/insurer/farmers/': typeof InsurerFarmersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -166,11 +187,14 @@ export interface FileRoutesByTo {
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/cooperative/agents': typeof CooperativeAgentsRoute
+  '/insurer/claims': typeof InsurerClaimsRoute
   '/admin': typeof AdminIndexRoute
   '/cooperative': typeof CooperativeIndexRoute
   '/insurer': typeof InsurerIndexRoute
   '/admin/farmers/$id': typeof AdminFarmersIdRoute
   '/cooperative/farmers/$id': typeof CooperativeFarmersIdRoute
+  '/insurer/farmers/$id': typeof InsurerFarmersIdRoute
+  '/insurer/farmers': typeof InsurerFarmersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -189,11 +213,14 @@ export interface FileRoutesById {
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/cooperative/agents': typeof CooperativeAgentsRoute
+  '/insurer/claims': typeof InsurerClaimsRoute
   '/admin/': typeof AdminIndexRoute
   '/cooperative/': typeof CooperativeIndexRoute
   '/insurer/': typeof InsurerIndexRoute
   '/admin/farmers/$id': typeof AdminFarmersIdRoute
   '/cooperative/farmers/$id': typeof CooperativeFarmersIdRoute
+  '/insurer/farmers/$id': typeof InsurerFarmersIdRoute
+  '/insurer/farmers/': typeof InsurerFarmersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -213,11 +240,14 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/auth/reset'
     | '/cooperative/agents'
+    | '/insurer/claims'
     | '/admin/'
     | '/cooperative/'
     | '/insurer/'
     | '/admin/farmers/$id'
     | '/cooperative/farmers/$id'
+    | '/insurer/farmers/$id'
+    | '/insurer/farmers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -232,11 +262,14 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/auth/reset'
     | '/cooperative/agents'
+    | '/insurer/claims'
     | '/admin'
     | '/cooperative'
     | '/insurer'
     | '/admin/farmers/$id'
     | '/cooperative/farmers/$id'
+    | '/insurer/farmers/$id'
+    | '/insurer/farmers'
   id:
     | '__root__'
     | '/'
@@ -254,11 +287,14 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/auth/reset'
     | '/cooperative/agents'
+    | '/insurer/claims'
     | '/admin/'
     | '/cooperative/'
     | '/insurer/'
     | '/admin/farmers/$id'
     | '/cooperative/farmers/$id'
+    | '/insurer/farmers/$id'
+    | '/insurer/farmers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -403,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InsurerIndexRouteImport
       parentRoute: typeof InsurerRoute
     }
+    '/insurer/claims': {
+      id: '/insurer/claims'
+      path: '/claims'
+      fullPath: '/insurer/claims'
+      preLoaderRoute: typeof InsurerClaimsRouteImport
+      parentRoute: typeof InsurerRoute
+    }
     '/admin/farmers/$id': {
       id: '/admin/farmers/$id'
       path: '/farmers/$id'
@@ -416,6 +459,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/cooperative/farmers/$id'
       preLoaderRoute: typeof CooperativeFarmersIdRouteImport
       parentRoute: typeof CooperativeRoute
+    }
+    '/insurer/farmers/': {
+      id: '/insurer/farmers/'
+      path: '/farmers'
+      fullPath: '/insurer/farmers/'
+      preLoaderRoute: typeof InsurerFarmersIndexRouteImport
+      parentRoute: typeof InsurerRoute
+    }
+    '/insurer/farmers/$id': {
+      id: '/insurer/farmers/$id'
+      path: '/farmers/$id'
+      fullPath: '/insurer/farmers/$id'
+      preLoaderRoute: typeof InsurerFarmersIdRouteImport
+      parentRoute: typeof InsurerRoute
     }
   }
 }
@@ -455,11 +512,17 @@ const CooperativeRouteWithChildren = CooperativeRoute._addFileChildren(
 )
 
 interface InsurerRouteChildren {
+  InsurerClaimsRoute: typeof InsurerClaimsRoute
   InsurerIndexRoute: typeof InsurerIndexRoute
+  InsurerFarmersIdRoute: typeof InsurerFarmersIdRoute
+  InsurerFarmersIndexRoute: typeof InsurerFarmersIndexRoute
 }
 
 const InsurerRouteChildren: InsurerRouteChildren = {
+  InsurerClaimsRoute: InsurerClaimsRoute,
   InsurerIndexRoute: InsurerIndexRoute,
+  InsurerFarmersIdRoute: InsurerFarmersIdRoute,
+  InsurerFarmersIndexRoute: InsurerFarmersIndexRoute,
 }
 
 const InsurerRouteWithChildren =

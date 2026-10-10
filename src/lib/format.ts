@@ -23,6 +23,12 @@ export function fmtDateTime(iso: string | null | undefined): string {
 export const pct = (v: number | null | undefined, digits = 0) =>
   v == null ? "—" : `${(v * 100).toFixed(digits)}%`;
 
+// Naira, whole amounts unless there are kobo: ₦150,000 / ₦45,000.50.
+export const naira = (v: number | null | undefined) =>
+  v == null
+    ? "—"
+    : `₦${v.toLocaleString("en-NG", { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
+
 export const num = (v: number | null | undefined, digits = 2) =>
   v == null ? "—" : v.toFixed(digits);
 

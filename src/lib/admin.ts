@@ -36,13 +36,15 @@ export const fetchCooperatives = createServerFn({ method: "GET" }).handler(
         zone: string;
         needs_review: boolean;
         created_at: string;
-        farmers: { count: number }[];
+        farmers: { id: number }[];
         agents: { count: number }[];
       }[]
     >(
       supabase
         .from("cooperatives")
-        .select("*, farmers(count), agents(count)")
+        // farmers(id), not farmers(count): a count needs table-wide read access, and portal
+        // users may read only some farmers columns (phone numbers are withheld).
+        .select("*, farmers(id), agents(count)")
         .order("needs_review", { ascending: false })
         .order("name"),
     );
@@ -55,7 +57,7 @@ export const fetchCooperatives = createServerFn({ method: "GET" }).handler(
       state: c.state,
       zone: c.zone,
       needsReview: c.needs_review,
-      farmers: c.farmers[0]?.count ?? 0,
+      farmers: c.farmers.length,
       agents: c.agents[0]?.count ?? 0,
       createdAt: c.created_at,
     }));

@@ -19,7 +19,11 @@ const NAV_FOR: Record<Role, NavItem[]> = {
     { to: "/admin/organizations", label: "Organizations & users", match: ["/admin/organizations"] },
     { to: "/insurer", label: "Insurer portal (view)", match: ["/insurer"] },
   ],
-  insurer: [],
+  insurer: [
+    { to: "/insurer", label: "Portfolio", match: [] },
+    { to: "/insurer/claims", label: "Claims", match: ["/insurer/claims"] },
+    { to: "/insurer/farmers", label: "Farmers", match: ["/insurer/farmers"] },
+  ],
   cooperative: [
     { to: "/cooperative", label: "Farmers", match: ["/cooperative/farmers"] },
     { to: "/cooperative/agents", label: "Agents", match: ["/cooperative/agents"] },
@@ -42,11 +46,14 @@ export function PortalShell({
 }) {
   const signOut = useSignOut();
   const { profile } = auth;
-  const nav = NAV_FOR[profile.role];
+  const viewingAs = portal !== profile.role;
+  // An admin in the insurer view gets that portal's sections and a way back.
+  const nav = viewingAs
+    ? [...NAV_FOR[portal], { to: "/admin", label: "Back to admin", match: [] }]
+    : NAV_FOR[profile.role];
   const path = useRouterState({ select: (s) => s.location.pathname }).replace(/\/$/, "");
   const isCurrent = (item: NavItem) =>
     path === item.to || item.match.some((m) => path.startsWith(m));
-  const viewingAs = portal !== profile.role;
 
   return (
     <div className="min-h-screen bg-secondary/30">

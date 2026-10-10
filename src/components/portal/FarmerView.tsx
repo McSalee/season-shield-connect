@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SeasonCharts } from "@/components/demo/SeasonCharts";
 import { FarmMap } from "@/components/admin/FarmMap";
+import { ClaimActions } from "./ClaimActions";
+import { ReportButtons } from "./ReportButtons";
 import { EmptyState, Pill, StatusBadge } from "@/components/admin/format";
-import { fmtDate, fmtDateTime, num, pct, stageLabel } from "@/lib/format";
+import { fmtDate, fmtDateTime, naira, num, pct, stageLabel } from "@/lib/format";
+import { CLAIM_STATUS_LABEL, type ClaimStatus } from "@/lib/insurer";
 import {
   currentStage,
   SEASON_OVER,
@@ -19,12 +22,16 @@ import {
   type StageResult,
 } from "@/lib/farmers";
 
-export type FarmerPortal = "admin" | "cooperative";
+export type FarmerPortal = "admin" | "cooperative" | "insurer";
 
 export function BackLink({ portal }: { portal: FarmerPortal }) {
   return (
     <Link
-      to={portal === "admin" ? "/admin" : "/cooperative"}
+      to={
+        ({ admin: "/admin", cooperative: "/cooperative", insurer: "/insurer/farmers" } as const)[
+          portal
+        ]
+      }
       className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
     >
       <ArrowLeft className="size-4" /> All farmers
@@ -32,9 +39,10 @@ export function BackLink({ portal }: { portal: FarmerPortal }) {
   );
 }
 
-// The farmer page of the admin and cooperative portals. Row-level security already limits
-// the data (cooperatives get only fully confirmed stage results and charts without stage
-// results); `portal` hides what only makes sense to GonaInsured staff.
+// The farmer page of the admin, cooperative and insurer portals. Row-level security already
+// limits the data (cooperatives and insurers get only fully confirmed stage results, charts
+// without stage results, and insurers no phone number); `portal` hides what only makes
+// sense to GonaInsured staff.
 export function FarmerView({ d, portal }: { d: FarmerDetail; portal: FarmerPortal }) {
   const admin = portal === "admin";
   const { farmer: f, chart, stages } = d;
@@ -59,9 +67,11 @@ export function FarmerView({ d, portal }: { d: FarmerDetail; portal: FarmerPorta
           <StatusBadge status={f.status} seasonOver={stageNow === SEASON_OVER} />
         </div>
         <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <Phone className="size-3.5" /> <span className="tabular-nums">{f.phone}</span>
-          </span>
+          {f.phone && (
+            <span className="inline-flex items-center gap-1.5">
+              <Phone className="size-3.5" /> <span className="tabular-nums">{f.phone}</span>
+            </span>
+          )}
           <span>
             {f.cooperative ? (
               <>
@@ -168,7 +178,7 @@ export function FarmerView({ d, portal }: { d: FarmerDetail; portal: FarmerPorta
           <ReportList reports={d.reports} />
         </TabsContent>
         <TabsContent value="claims">
-          <ClaimList claims={d.claims} />
+          <ClaimList claims={d.claims} admin={admin} />
         </TabsContent>
         <TabsContent value="details">
           <Details f={f} admin={admin} />
@@ -342,29 +352,6 @@ function MessageList({ messages }: { messages: FarmerDetail["messages"] }) {
 }
 
 function ReportList({ reports }: { reports: FarmerDetail["reports"] }) {
-  const sign = useServerFn(signReportUrl);
-  const [busy, setBusy] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  async function open(path: string) {
-    setBusy(path);
-    setError(null);
-    // Open the tab during the click (popup blockers allow that), then point it at the
-    // short-lived signed link once the server has made it.
-    const tab = window.open("", "_blank");
-    if (tab) tab.opener = null;
-    try {
-      const url = await sign({ data: { path } });
-      if (tab) tab.location.href = url;
-      else window.location.href = url;
-    } catch (e) {
-      tab?.close();
-      setError(e instanceof Error ? e.message : "Could not open the report.");
-    } finally {
-      setBusy(null);
-    }
-  }
-
   if (reports.length === 0)
     return (
       <EmptyState>
@@ -372,56 +359,29 @@ function ReportList({ reports }: { reports: FarmerDetail["reports"] }) {
       </EmptyState>
     );
   return (
-    <div className="space-y-2">
-      {error && <p className="text-sm text-destructive">{error}</p>}
-      <ul className="space-y-2">
-        {reports.map((r) => (
-          <li
-            key={r.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm"
-          >
-            <div className="flex items-center gap-2">
-              <FileText className="size-4 text-muted-foreground" />
-              <span className="font-mono font-semibold">{r.reference}</span>
-              <span className="text-xs text-muted-foreground">{fmtDateTime(r.createdAt)}</span>
-            </div>
-            {isBucketKey(r.pdfPath) ? (
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => open(r.pdfPath)}
-                  disabled={busy !== null}
-                >
-                  {busy === r.pdfPath ? <Loader2 className="animate-spin" /> : <Download />} PDF
-                </Button>
-                {r.txtPath && isBucketKey(r.txtPath) && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => open(r.txtPath!)}
-                    disabled={busy !== null}
-                  >
-                    {busy === r.txtPath ? <Loader2 className="animate-spin" /> : <Download />} Text
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <span className="text-xs text-muted-foreground">
-                File not uploaded yet (next worker run)
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul className="space-y-2">
+      {reports.map((r) => (
+        <li
+          key={r.id}
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm"
+        >
+          <div className="flex items-center gap-2">
+            <FileText className="size-4 text-muted-foreground" />
+            <span className="font-mono font-semibold">{r.reference}</span>
+            <span className="text-xs text-muted-foreground">{fmtDateTime(r.createdAt)}</span>
+          </div>
+          <ReportButtons pdfPath={r.pdfPath} txtPath={r.txtPath} />
+        </li>
+      ))}
+    </ul>
   );
 }
 
-function ClaimList({ claims }: { claims: FarmerDetail["claims"] }) {
+// Admins can send a confirmed claim to the insurer from here; the insurer acts on claims
+// in its own portal (Claims page).
+function ClaimList({ claims, admin }: { claims: FarmerDetail["claims"]; admin: boolean }) {
   if (claims.length === 0)
     return <EmptyState>No claims. A claim is created for each fully confirmed trigger.</EmptyState>;
-  const naira = (v: number | null) => (v == null ? "not set" : `₦${v.toLocaleString("en-NG")}`);
   return (
     <ul className="space-y-2">
       {claims.map((c) => (
@@ -429,12 +389,17 @@ function ClaimList({ claims }: { claims: FarmerDetail["claims"] }) {
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono font-semibold">{c.reference}</span>
             <Pill tone="bad">{c.severityBand}</Pill>
-            <Pill>{c.status.replace(/_/g, " ")}</Pill>
+            <Pill>{CLAIM_STATUS_LABEL[c.status as ClaimStatus] ?? c.status}</Pill>
           </div>
           <p className="mt-1 text-muted-foreground">
             Payout {pct(c.payoutFraction, 0)} of sum insured · sum insured {naira(c.sumInsured)} ·
             amount {naira(c.payoutAmount)} · {fmtDate(c.createdAt)}
           </p>
+          {admin && (
+            <div className="mt-2">
+              <ClaimActions claimId={c.id} status={c.status as ClaimStatus} role="admin" />
+            </div>
+          )}
         </li>
       ))}
     </ul>

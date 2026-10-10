@@ -43,6 +43,20 @@ export async function must<T>(
   return data as T;
 }
 
+// Farmers' phone numbers are not in the farmers table's readable columns: admins and
+// cooperative staff get them through farmer_phones() (only their own farmers'); insurers
+// get none, so `phone` is null for them.
+async function fetchPhones(
+  supabase: ReturnType<typeof getSupabaseServerClient>,
+  ids: number[],
+): Promise<Map<number, string>> {
+  if (ids.length === 0) return new Map();
+  const rows = await must<{ farmer_id: number; phone: string }[]>(
+    supabase.rpc("farmer_phones", { farmer_ids: ids }),
+  );
+  return new Map(rows.map((r) => [r.farmer_id, r.phone]));
+}
+
 // ------------------------------------------------------------------ farmers list
 
 export const STATUSES: FarmerStatus[] = ["normal", "stress_detected", "trigger_confirmed"];
@@ -60,7 +74,7 @@ export const validateFarmerSearch = (s: Record<string, unknown>): FarmerSearch =
 export type FarmerRow = {
   id: number;
   name: string;
-  phone: string;
+  phone: string | null; // null for insurers
   status: FarmerStatus;
   statusUpdatedAt: string;
   plantingDate: string | null;
@@ -74,7 +88,6 @@ export type FarmerRow = {
 type RawFarmer = {
   id: number;
   name: string;
-  phone: string;
   status: FarmerStatus;
   status_updated_at: string;
   planting_date: string | null;
@@ -90,7 +103,7 @@ export const fetchFarmers = createServerFn({ method: "GET" }).handler(
         supabase
           .from("farmers")
           .select(
-            "id, name, phone, status, status_updated_at, planting_date, cooperatives(name), agents(name, code)",
+            "id, name, status, status_updated_at, planting_date, cooperatives(name), agents(name, code)",
           )
           .order("name"),
       ),
@@ -101,6 +114,10 @@ export const fetchFarmers = createServerFn({ method: "GET" }).handler(
           .select("farmer_id, season_year, stages:data->stages, today:data->>today"),
       ),
     ]);
+    const phones = await fetchPhones(
+      supabase,
+      farmers.map((f) => f.id),
+    );
     const latest = new Map<number, (typeof charts)[number]>();
     for (const c of charts) {
       const prev = latest.get(c.farmer_id);
@@ -111,7 +128,7 @@ export const fetchFarmers = createServerFn({ method: "GET" }).handler(
       return {
         id: f.id,
         name: f.name,
-        phone: f.phone,
+        phone: phones.get(f.id) ?? null,
         status: f.status,
         statusUpdatedAt: f.status_updated_at,
         plantingDate: f.planting_date,
@@ -154,7 +171,7 @@ export type FarmerDetail = {
     id: number;
     engineId: number | null;
     name: string;
-    phone: string;
+    phone: string | null; // null for insurers
     latitude: number;
     longitude: number;
     boundary: Json;
@@ -219,7 +236,11 @@ export const fetchFarmer = createServerFn({ method: "GET" })
     const f = await must<any>(
       supabase
         .from("farmers")
-        .select("*, cooperatives(id, name, needs_review), agents(name, code)")
+        .select(
+          "id, engine_id, name, latitude, longitude, boundary_geojson, crop, zone, planting_date, " +
+            "enrollment_date, consent_at, status, status_updated_at, message_pref, " +
+            "cooperatives(id, name, needs_review), agents(name, code)",
+        )
         .eq("id", id)
         .maybeSingle(),
     );
@@ -302,7 +323,7 @@ export const fetchFarmer = createServerFn({ method: "GET" })
         id: f.id,
         engineId: f.engine_id,
         name: f.name,
-        phone: f.phone,
+        phone: (await fetchPhones(supabase, [f.id])).get(f.id) ?? null,
         latitude: f.latitude,
         longitude: f.longitude,
         boundary: f.boundary_geojson,

@@ -14,8 +14,9 @@ import { EmptyState, PageHeader, StatusBadge } from "@/components/admin/format";
 import { fmtDate, stageLabel } from "@/lib/format";
 import type { FarmerPortal } from "./FarmerView";
 
-// The farmer list of the admin and cooperative portals (row-level security decides which
-// farmers arrive). Cooperatives see an agent column instead of the cooperative one.
+// The farmer list of the admin, cooperative and insurer portals (row-level security decides
+// which farmers arrive). Cooperatives see an agent column instead of the cooperative one;
+// insurers get no phone numbers.
 export function FarmerList({
   farmers,
   portal,
@@ -32,9 +33,16 @@ export function FarmerList({
   intro: string;
 }) {
   const admin = portal === "admin";
-  const link = admin ? "/admin/farmers/$id" : "/cooperative/farmers/$id";
+  const byCoop = portal !== "cooperative"; // admin and insurer: one list across cooperatives
+  const link = (
+    {
+      admin: "/admin/farmers/$id",
+      cooperative: "/cooperative/farmers/$id",
+      insurer: "/insurer/farmers/$id",
+    } as const
+  )[portal];
   const navigate = useNavigate();
-  const group = (f: FarmerRow) => (admin ? f.cooperative : f.agent);
+  const group = (f: FarmerRow) => (byCoop ? f.cooperative : f.agent);
 
   const counts = Object.fromEntries(
     STATUSES.map((s) => [s, farmers.filter((f) => f.status === s).length]),
@@ -44,7 +52,7 @@ export function FarmerList({
     (f) =>
       (!status || f.status === status) &&
       (!needle ||
-        [f.name, f.phone, f.cooperative ?? "", f.agent ?? ""].some((v) =>
+        [f.name, f.phone ?? "", f.cooperative ?? "", f.agent ?? ""].some((v) =>
           v.toLowerCase().includes(needle),
         )),
   );
@@ -90,7 +98,11 @@ export function FarmerList({
         <Input
           type="search"
           placeholder={
-            admin ? "Search name, phone, cooperative or agent" : "Search name, phone or agent"
+            admin
+              ? "Search name, phone, cooperative or agent"
+              : byCoop
+                ? "Search name or cooperative"
+                : "Search name, phone or agent"
           }
           aria-label="Search farmers"
           defaultValue={q ?? ""}
@@ -116,7 +128,7 @@ export function FarmerList({
                 <thead className="border-b bg-secondary/50 text-left text-xs font-semibold text-muted-foreground">
                   <tr>
                     <th className="px-4 py-2.5">Farmer</th>
-                    <th className="px-4 py-2.5">{admin ? "Cooperative" : "Agent"}</th>
+                    <th className="px-4 py-2.5">{byCoop ? "Cooperative" : "Agent"}</th>
                     <th className="px-4 py-2.5">Status</th>
                     <th className="px-4 py-2.5">Stage now</th>
                     <th className="px-4 py-2.5">Planted</th>
@@ -139,7 +151,11 @@ export function FarmerList({
                         >
                           {f.name}
                         </Link>
-                        <div className="text-xs text-muted-foreground tabular-nums">{f.phone}</div>
+                        {f.phone && (
+                          <div className="text-xs text-muted-foreground tabular-nums">
+                            {f.phone}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3">{group(f) ?? "—"}</td>
                       <td className="px-4 py-3">
@@ -167,7 +183,8 @@ export function FarmerList({
                       <div className="min-w-0">
                         <p className="truncate font-semibold">{f.name}</p>
                         <p className="truncate text-xs text-muted-foreground">
-                          {group(f) ?? (admin ? "No cooperative" : "No agent")} · {f.phone}
+                          {group(f) ?? (byCoop ? "No cooperative" : "No agent")}
+                          {f.phone && ` · ${f.phone}`}
                         </p>
                       </div>
                       <StatusBadge status={f.status} seasonOver={f.stage === SEASON_OVER} />
