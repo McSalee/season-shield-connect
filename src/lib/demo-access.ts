@@ -10,6 +10,9 @@ import { z } from "zod";
 
 const COOKIE = "gona_demo";
 const HOURS = 6;
+// Part of what is signed. Changing it ends every open demo session at the next deploy
+// (as does changing DEMO_ACCESS_CODE). v2: 2026-10-10, sign-out added.
+const SESSION = "demo-v2";
 
 function accessCode(): string | null {
   const code = process.env["DEMO_ACCESS_CODE"]?.trim();
@@ -34,7 +37,7 @@ function sameText(a: string, b: string): boolean {
 async function validCookie(value: string | undefined, code: string): Promise<boolean> {
   const [exp, sig] = (value ?? "").split(".");
   if (!exp || !sig || !/^\d+$/.test(exp) || Number(exp) * 1000 < Date.now()) return false;
-  return sameText(sig, await hmac(code, `demo:${exp}`));
+  return sameText(sig, await hmac(code, `${SESSION}:${exp}`));
 }
 
 export const hasDemoAccess = createServerFn({ method: "GET" }).handler(async (): Promise<boolean> => {
@@ -51,7 +54,7 @@ export const unlockDemo = createServerFn({ method: "POST" })
     if (!code) return { ok: false, reason: "not_configured" };
     if (!sameText(data.code.trim(), code)) return { ok: false, reason: "wrong_code" };
     const exp = Math.floor(Date.now() / 1000) + HOURS * 3600;
-    setCookie(COOKIE, `${exp}.${await hmac(code, `demo:${exp}`)}`, {
+    setCookie(COOKIE, `${exp}.${await hmac(code, `${SESSION}:${exp}`)}`, {
       httpOnly: true,
       secure: process.env["NODE_ENV"] === "production",
       sameSite: "lax",
