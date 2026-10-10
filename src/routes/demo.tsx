@@ -1,12 +1,12 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, FileText, Info, Search, TriangleAlert, Users, ShieldCheck, Satellite, CalendarDays, Sprout, MapPin, Wallet } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, FileText, Info, Loader2, LogOut, Search, TriangleAlert, Users, ShieldCheck, Satellite, CalendarDays, Sprout, MapPin, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FieldMap } from "@/components/demo/FieldMap";
 import { SeasonCharts } from "@/components/demo/SeasonCharts";
-import { hasDemoAccess } from "@/lib/demo-access";
+import { hasDemoAccess, lockDemo } from "@/lib/demo-access";
 import { cap, demo, fmtDay, initials, pct, STATUS_LABEL, type Farmer, type Status } from "@/data/demo";
 
 type DemoSearch = { farmer?: number; status?: Status };
@@ -99,6 +99,27 @@ function Avatar({ name, large }: { name: string; large?: boolean }) {
 
 const coords = (f: Farmer) => `${f.lat.toFixed(4)}°N, ${f.lon.toFixed(4)}°E`;
 
+// Ends this browser's demo access (the code is needed again).
+function DemoSignOut() {
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="text-muted-foreground"
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        await lockDemo();
+        await navigate({ to: "/demo-access" });
+      }}
+    >
+      {busy ? <Loader2 className="animate-spin" /> : <LogOut />}Sign out
+    </Button>
+  );
+}
+
 // --------------------------------------------------------------------------- page
 
 function DemoPage() {
@@ -126,6 +147,7 @@ function DemoPage() {
             <Button variant="ghost" size="sm" className="hidden text-muted-foreground sm:inline-flex" asChild>
               <Link to="/"><ArrowLeft />Website</Link>
             </Button>
+            <DemoSignOut />
             <Button variant="default" size="sm" className="h-9 rounded-md font-semibold shadow-none" asChild>
               <a href="/#partner">Partner with us</a>
             </Button>

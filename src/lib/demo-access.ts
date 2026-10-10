@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getCookie, setCookie } from "@tanstack/react-start/server";
+import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 // The partner demo (/demo) is behind one shared access code, checked only on the server.
@@ -60,3 +60,8 @@ export const unlockDemo = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+// "Sign out" of the demo: removes the cookie, so the code is needed again.
+export const lockDemo = createServerFn({ method: "POST" }).handler(async (): Promise<void> => {
+  deleteCookie(COOKIE, { path: "/" });
+});
