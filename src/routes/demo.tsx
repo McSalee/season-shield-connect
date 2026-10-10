@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, FileText, Info, Search, TriangleAlert, Users, ShieldCheck, Satellite, CalendarDays, Sprout, MapPin, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -6,12 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FieldMap } from "@/components/demo/FieldMap";
 import { SeasonCharts } from "@/components/demo/SeasonCharts";
+import { hasDemoAccess } from "@/lib/demo-access";
 import { cap, demo, fmtDay, initials, pct, STATUS_LABEL, type Farmer, type Status } from "@/data/demo";
 
 type DemoSearch = { farmer?: number; status?: Status };
 const STATUSES: Status[] = ["normal", "stress_detected", "trigger_confirmed"];
 
 export const Route = createFileRoute("/demo")({
+  // Locked behind the demo access code (checked on the server, see lib/demo-access.ts).
+  beforeLoad: async () => {
+    if (!(await hasDemoAccess())) throw redirect({ to: "/demo-access" });
+  },
   validateSearch: (s: Record<string, unknown>): DemoSearch => {
     const out: DemoSearch = {};
     const id = Number(s["farmer"]);
@@ -21,6 +26,7 @@ export const Route = createFileRoute("/demo")({
   },
   head: () => ({ meta: [
     { title: "Partner dashboard demo | GonaInsured" },
+    { name: "robots", content: "noindex" },
     { name: "description", content: "See how GonaInsured monitors farms with satellite data: field health maps, double-trigger results, SMS advisories and payout reports." },
     { property: "og:title", content: "GonaInsured partner dashboard demo" },
     { property: "og:description", content: "Explore a simulated cooperative portfolio with real satellite imagery, crop-health monitoring, advisories and payout reports." },

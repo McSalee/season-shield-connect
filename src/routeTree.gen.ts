@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CooperativeRouteImport } from './routes/cooperative'
 import { Route as DemoRouteImport } from './routes/demo'
+import { Route as DemoAccessRouteImport } from './routes/demo-access'
 import { Route as InsurerRouteImport } from './routes/insurer'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NoAccessRouteImport } from './routes/no-access'
@@ -51,6 +52,11 @@ const CooperativeRoute = CooperativeRouteImport.update({
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
   path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoAccessRoute = DemoAccessRouteImport.update({
+  id: '/demo-access',
+  path: '/demo-access',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InsurerRoute = InsurerRouteImport.update({
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/cooperative': typeof CooperativeRouteWithChildren
   '/demo': typeof DemoRoute
+  '/demo-access': typeof DemoAccessRoute
   '/insurer': typeof InsurerRouteWithChildren
   '/login': typeof LoginRoute
   '/no-access': typeof NoAccessRoute
@@ -177,6 +184,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
+  '/demo-access': typeof DemoAccessRoute
   '/login': typeof LoginRoute
   '/no-access': typeof NoAccessRoute
   '/portal': typeof PortalRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/cooperative': typeof CooperativeRouteWithChildren
   '/demo': typeof DemoRoute
+  '/demo-access': typeof DemoAccessRoute
   '/insurer': typeof InsurerRouteWithChildren
   '/login': typeof LoginRoute
   '/no-access': typeof NoAccessRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cooperative'
     | '/demo'
+    | '/demo-access'
     | '/insurer'
     | '/login'
     | '/no-access'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/demo'
+    | '/demo-access'
     | '/login'
     | '/no-access'
     | '/portal'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cooperative'
     | '/demo'
+    | '/demo-access'
     | '/insurer'
     | '/login'
     | '/no-access'
@@ -302,6 +314,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CooperativeRoute: typeof CooperativeRouteWithChildren
   DemoRoute: typeof DemoRoute
+  DemoAccessRoute: typeof DemoAccessRoute
   InsurerRoute: typeof InsurerRouteWithChildren
   LoginRoute: typeof LoginRoute
   NoAccessRoute: typeof NoAccessRoute
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/demo'
       fullPath: '/demo'
       preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo-access': {
+      id: '/demo-access'
+      path: '/demo-access'
+      fullPath: '/demo-access'
+      preLoaderRoute: typeof DemoAccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/insurer': {
@@ -533,6 +553,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CooperativeRoute: CooperativeRouteWithChildren,
   DemoRoute: DemoRoute,
+  DemoAccessRoute: DemoAccessRoute,
   InsurerRoute: InsurerRouteWithChildren,
   LoginRoute: LoginRoute,
   NoAccessRoute: NoAccessRoute,
