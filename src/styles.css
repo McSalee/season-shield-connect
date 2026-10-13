@@ -189,6 +189,30 @@
 @utility sound-bar { animation: sound-bar 1s ease-in-out infinite; transform-origin: center; }
 @utility panel-enter { animation: float-in .35s ease-out both; }
 
+/* Landing hero scene (src/components/landing/HeroScene.tsx) */
+@keyframes hero-sway { 0%, 100% { transform: rotate(-2.6deg); } 35% { transform: rotate(1.4deg); } }
+@keyframes hero-breathe { 0%, 100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.06); opacity: 1; } }
+@keyframes hero-drift { from { transform: translateX(-1.5%); } to { transform: translateX(1.5%); } }
+@keyframes hero-hover { 0%, 100% { transform: translate(var(--sat-x), var(--sat-y)); } 50% { transform: translate(var(--sat-x), calc(var(--sat-y) - 16px)); } }
+@keyframes hero-orbit { from { transform: translateX(-90px); } to { transform: translateX(90px); } }
+@keyframes hero-tilt { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(3deg); } }
+@keyframes hero-beam { 0%, 100% { opacity: .35; } 50% { opacity: .8; } }
+@keyframes hero-footprint { 0%, 100% { opacity: .08; } 50% { opacity: .22; } }
+@keyframes hero-twinkle { 0%, 100% { opacity: .25; } 50% { opacity: .85; } }
+
+.hero-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: hero-sway 6s ease-in-out infinite; }
+.hero-breathe { animation: hero-breathe 6s ease-in-out infinite; }
+.hero-drift { animation: hero-drift 14s ease-in-out infinite alternate; }
+/* Satellite position: above the headline on small screens, over the field on wide ones. */
+.hero-hover { --sat-x: 1190px; --sat-y: 95px; transform: translate(var(--sat-x), var(--sat-y)); animation: hero-hover 5s ease-in-out infinite; }
+@media (min-width: 1024px) { .hero-hover { --sat-x: 1010px; --sat-y: 250px; } }
+.hero-orbit { animation: hero-orbit 18s ease-in-out infinite alternate; }
+.hero-tilt { transform-box: fill-box; transform-origin: 50% 50%; animation: hero-tilt 7s ease-in-out infinite; }
+.hero-beam { animation: hero-beam 3.2s ease-in-out infinite; }
+.hero-footprint { animation: hero-footprint 3.2s ease-in-out infinite; }
+.hero-twinkle { animation: hero-twinkle 4s ease-in-out infinite; }
+.hero-blink { animation: hero-twinkle 1.4s ease-in-out infinite; }
+
 .demo-theme {
   --background: oklch(0.974 0.006 155);
   --foreground: oklch(0.30 0.038 163);
